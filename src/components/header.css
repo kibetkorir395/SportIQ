@@ -1,52 +1,11 @@
-/* FIXES FOR MOBILE OVERFLOW - ADD AT THE TOP OF header.css */
+/* FIXES FOR MOBILE OVERFLOW */
 html, body {
     overflow-x: hidden;
     width: 100%;
     position: relative;
     margin: 0;
     padding: 0;
-    body: green;
 }
-
-.navbar {
-    width: 100%;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-}
-
-.nav-container {
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-@media (max-width: 768px) {
-    body.menu-open {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-    }
-    
-    .nav-menu {
-        height: 100vh;
-        height: -webkit-fill-available;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-@media (max-width: 480px) {
-    .nav-container {
-        padding-left: 0.8rem;
-        padding-right: 0.8rem;
-    }
-}
-/* END OF FIXES */
-
-
 
 /* Navbar Styles */
 .navbar {
@@ -54,8 +13,9 @@ html, body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: fixed;
     width: 100%;
-    max-width: 100%;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     transition: all 0.3s ease;
 }
@@ -71,9 +31,11 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Logo */
@@ -130,9 +92,10 @@ html, body {
     transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Navigation Menu */
+/* Navigation Menu - Desktop */
 .nav-menu {
     display: flex;
+    align-items: center;
     gap: 2rem;
 }
 
@@ -196,19 +159,12 @@ html, body {
     color: #ff6b35;
 }
 
-.nav-link.premium-btn.active {
-    color: #ff6b35;
-}
-
-.nav-link.premium-btn.active::after {
-    background: #ff6b35;
-}
-
 /* Desktop Auth */
 .nav-auth {
-    display: none;
+    display: flex;
     gap: 1rem;
     align-items: center;
+    margin-left: 1rem;
 }
 
 .desktop-get-started {
@@ -220,6 +176,7 @@ html, body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
+    white-space: nowrap;
 }
 
 .desktop-get-started:hover {
@@ -228,7 +185,7 @@ html, body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* User Menu */
+/* User Menu - Desktop */
 .user-menu {
     position: relative;
 }
@@ -254,15 +211,14 @@ html, body {
     box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
 }
 
-/* Mobile Auth */
+/* Mobile Auth - Hidden by default */
 .mobile-auth {
     display: none;
 }
 
-/* Keep original buttons hidden */
+/* Hidden buttons */
 .btn-login,
 .btn-signup {
-    /* Keep original styles for the hidden buttons */
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
@@ -282,10 +238,14 @@ html, body {
     color: var(--white);
 }
 
-/* Responsive Design */
+/* Responsive Design - Mobile */
 @media (max-width: 768px) {
     .hamburger-btn {
         display: flex;
+    }
+
+    .nav-auth {
+        display: none; /* Hide desktop auth on mobile */
     }
 
     .nav-menu {
@@ -311,7 +271,7 @@ html, body {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1.5rem;
+        padding: 1.2rem 1.5rem;
         border-bottom: 1px solid var(--light-gray);
     }
 
@@ -340,12 +300,13 @@ html, body {
     .nav-links {
         flex-direction: column;
         padding: 1.5rem;
-        gap: 1rem;
+        gap: 0.8rem;
+        width: 100%;
     }
 
     .nav-link {
         width: 100%;
-        padding: 0.8rem;
+        padding: 0.8rem 1rem;
         border-radius: 8px;
     }
 
@@ -355,6 +316,7 @@ html, body {
 
     .nav-link.active {
         background: var(--light);
+        color: var(--primary);
     }
 
     .nav-link.active::after {
@@ -365,12 +327,12 @@ html, body {
         width: 24px;
     }
 
+    /* Mobile Auth - Visible in mobile menu */
     .mobile-auth {
         display: block;
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--light-gray);
-        display: none;
     }
 
     .mobile-auth .btn-login,
@@ -378,6 +340,8 @@ html, body {
         width: 100%;
         margin-bottom: 0.8rem;
         display: block;
+        text-align: center;
+        padding: 0.8rem;
     }
 
     .mobile-user-info {
@@ -394,50 +358,48 @@ html, body {
         height: 40px;
         border-radius: 50%;
         background: var(--primary);
-        color: var(--white);
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
         font-size: 1rem;
+        flex-shrink: 0;
     }
 
     .mobile-user-details {
         flex: 1;
-        display: flex;
-        flex-direction: column;
+        min-width: 0;
     }
 
     .mobile-user-name {
         font-weight: 600;
         color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .mobile-user-email {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--gray);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .desktop-get-started {
-        /*display: none;*/
-    }
-
-    /* Overlay when menu is open */
-    .nav-menu.active::before {
-        content: '';
+    /* Body scroll lock when menu open */
+    body.menu-open {
+        overflow: hidden;
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
+        width: 100%;
+        height: 100%;
     }
 }
 
 @media (max-width: 480px) {
     .nav-container {
-        padding: 0.8rem 1rem;
+        padding: 0.7rem 1rem;
     }
 
     .nav-logo {
@@ -446,16 +408,45 @@ html, body {
 
     .nav-logo i {
         font-size: 1.4rem;
+        margin-right: 0.3rem;
+    }
+
+    .hamburger-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .hamburger-btn span {
+        width: 28px;
+        height: 2.5px;
     }
 
     .nav-menu {
         width: 85%;
-        position: absolute;
+        max-width: 300px;
     }
 
-    .user-avatar {
-        width: 35px;
-        height: 35px;
+    .nav-menu-header {
+        padding: 1rem 1.2rem;
+    }
+
+    .nav-links {
+        padding: 1.2rem;
+    }
+
+    .nav-link {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .nav-link i {
+        font-size: 1rem;
+        width: 22px;
+    }
+
+    .mobile-user-avatar {
+        width: 36px;
+        height: 36px;
         font-size: 0.9rem;
     }
 }
@@ -466,7 +457,6 @@ html, body {
         opacity: 0;
         transform: translateX(20px);
     }
-
     to {
         opacity: 1;
         transform: translateX(0);
@@ -479,7 +469,7 @@ html, body {
     opacity: 0;
 }
 
-/* Fix for button display none */
+/* Hide hidden buttons */
 .btn-login[style*="display: none"],
 .btn-signup[style*="display: none"] {
     display: none !important;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useFirebase } from '../contexts/FirebaseContext';
-import './header.css';
+//import './header.css';
 
 export default function Header() {
   const navigate = useNavigate();

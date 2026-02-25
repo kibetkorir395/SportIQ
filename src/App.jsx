@@ -15,7 +15,7 @@ import { NotificationContainer, useNotification } from "./components/notificatio
 import { useModal } from "./components/Modal";
 import Profile from "./pages/profile";
 import Tips from "./pages/tips";
-import Admin from "./pages/admin";
+//import Admin from "./pages/admin";
 
 // ScrollToTop component
 function ScrollToTop() {
@@ -114,7 +114,7 @@ function AppContent() {
         <Route path="/payment" element={<Payment showNotification={showNotification} showModal={showModal} />} />
         <Route path="/get-started" element={<Auth showNotification={showNotification} showModal={showModal} />} />
         <Route path="/profile" element={<Profile showNotification={showNotification} showModal={showModal} />} />
-        <Route path="/admin" element={<Admin showNotification={showNotification} showModal={showModal} />} />
+        {/*<Route path="/admin" element={<Admin showNotification={showNotification} showModal={showModal} />} />*/}
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Footer />

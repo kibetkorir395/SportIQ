@@ -400,6 +400,7 @@
 
     .nav-menu {
         width: 85%;
+        position: absolute;
     }
 
     .user-avatar {

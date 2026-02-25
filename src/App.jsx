@@ -5,7 +5,7 @@ import Footer from "./components/footer";
 import Payment from "./pages/payment";
 import Auth from "./pages/auth";
 import ErrorPage from "./pages/error-page";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Pricing from "./pages/pricing";
 import Predictions from "./pages/predictions";
 import Joyride from "react-joyride";

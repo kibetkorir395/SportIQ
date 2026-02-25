@@ -84,7 +84,6 @@
 .nav-menu {
     display: flex;
     gap: 2rem;
-    display: none;
 }
 
 .nav-menu-header {
@@ -321,6 +320,7 @@
         margin-top: 2rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--light-gray);
+        display: none;
     }
 
     .mobile-auth .btn-login,

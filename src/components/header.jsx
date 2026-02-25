@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useFirebase } from '../contexts/FirebaseContext';
 import './header.css';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useFirebase();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -21,17 +22,18 @@ export default function Header() {
   // Close menu when route changes
   useEffect(() => {
     setMenuOpen(false);
-  }, [location]);
+  }, [location.pathname]); // Fixed: use location.pathname instead of location
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (menuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('menu-open');
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.classList.remove('menu-open');
     }
+    
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.classList.remove('menu-open');
     };
   }, [menuOpen]);
 
@@ -60,6 +62,7 @@ export default function Header() {
           className={`hamburger-btn ${menuOpen ? 'active' : ''}`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           <span></span>
           <span></span>
@@ -111,19 +114,17 @@ export default function Header() {
             </NavLink>
 
             {user && (
-              <>
-                <NavLink 
-                  to="/profile" 
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                  onClick={handleNavClick}
-                >
-                  <i className="fas fa-user"></i>
-                  <span>Profile</span>
-                </NavLink>
-              </>
+              <NavLink 
+                to="/profile" 
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                onClick={handleNavClick}
+              >
+                <i className="fas fa-user"></i>
+                <span>Profile</span>
+              </NavLink>
             )}
 
-            {/* Mobile Auth Buttons */}
+            {/* Mobile Auth Section */}
             <div className="mobile-auth">
               {!user ? (
                 <>
@@ -161,9 +162,9 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Desktop Auth Buttons */}
+        {/* Desktop Auth */}
         <div className="nav-auth">
-          {/* Keep original buttons with display none as requested */}
+          {/* Hidden buttons (kept for compatibility) */}
           <button className="btn-login" style={{ display: "none" }} onClick={() => navigate("/login")}>
             Login
           </button>
@@ -171,10 +172,10 @@ export default function Header() {
             Sign Up
           </button>
           
-          {/* Actual auth buttons based on user state */}
+          {/* Actual desktop auth */}
           {!user ? (
             <button 
-              className="btn-signup desktop-get-started" 
+              className="desktop-get-started" 
               onClick={() => navigate("/get-started")}
             >
               Get Started

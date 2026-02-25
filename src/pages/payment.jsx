@@ -31,13 +31,13 @@ export default function Payment({ showNotification, showModal }) {
     }
   }, [selectedPackage]);
 
-  /*useEffect(() => {
-    if (user && selectedMethod !== "MPesa") {
-      if(user.phoneNumber != "" || null){
-        setPaymentDetail(user.phoneNumber);
+  useEffect(() => {
+    if (userProfile != null && selectedMethod !== "MPesa") {
+      if(userProfile.phoneNumber != "" || null){
+        setPaymentDetail(userProfile.phoneNumber);
       }
     }
-  }, [user]);*/
+  }, [userProfile]);
 
   const methods = [ 
     {

@@ -370,7 +370,7 @@
     }
 
     .desktop-get-started {
-        /*display: none;*/
+        display: none;
     }
 
     /* Overlay when menu is open */

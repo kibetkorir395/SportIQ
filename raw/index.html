@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport IQ - Premium Football Predictions</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-futbol"></i>
+                <span>Sport IQ</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#predictions" class="nav-link">Predictions</a>
+                <a href="#premium" class="nav-link premium-btn">Premium Tips</a>
+                <a href="#analysis" class="nav-link">Match Analysis</a>
+            </div>
+            <div class="nav-auth">
+                <button class="btn-login">Login</button>
+                <button class="btn-signup">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Expert Football Predictions</h1>
+            <p>Advanced match analysis and premium insights for passionate football fans</p>
+            <div class="hero-buttons">
+                <button class="btn-primary">View Today's Predictions</button>
+                <button class="btn-secondary">Explore Premium Tips</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Predictions Section -->
+    <section id="predictions" class="predictions">
+        <div class="container">
+            <h2>Today's Premium Predictions</h2>
+            <div class="prediction-filters">
+                <button class="filter-btn active">All Matches</button>
+                <button class="filter-btn">Top Leagues</button>
+                <button class="filter-btn">Starting Soon</button>
+                <button class="filter-btn">High Confidence</button>
+            </div>
+
+            <div class="predictions-grid">
+                <!-- Prediction Card 1 -->
+                <div class="prediction-card premium">
+                    <div class="match-header">
+                        <span class="league">Premier League</span>
+                        <span class="premium-badge">Premium</span>
+                    </div>
+                    <div class="teams">
+                        <div class="team">
+                            <img src="https://via.placeholder.com/40" alt="Team A">
+                            <span>Manchester City</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <img src="https://via.placeholder.com/40" alt="Team B">
+                            <span>Liverpool</span>
+                        </div>
+                    </div>
+                    <div class="match-time">Today • 15:00 GMT</div>
+                    
+                    <div class="predictions-list">
+                        <div class="prediction-item">
+                            <span class="market">1X2</span>
+                            <span class="prediction">1</span>
+                            <span class="confidence high">85%</span>
+                        </div>
+                        <div class="prediction-item">
+                            <span class="market">OVER/UNDER</span>
+                            <span class="prediction">OVER 2.5</span>
+                            <span class="confidence medium">72%</span>
+                        </div>
+                        <div class="prediction-item">
+                            <span class="market">GG/NG</span>
+                            <span class="prediction">GG</span>
+                            <span class="confidence high">78%</span>
+                        </div>
+                        <div class="prediction-item">
+                            <span class="market">Correct Score</span>
+                            <span class="prediction">2-1</span>
+                            <span class="confidence medium">68%</span>
+                        </div>
+                    </div>
+
+                    <div class="analysis-preview">
+                        <h4>Expert Analysis</h4>
+                        <p>City's home advantage and Liverpool's defensive issues suggest a home win. Both teams likely to score.</p>
+                        <button class="btn-view-analysis">View Full Analysis</button>
+                    </div>
+                </div>
+
+                <!-- Add more prediction cards here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Section -->
+    <section id="premium" class="premium-section">
+        <div class="container">
+            <h2>Premium Tips Subscription</h2>
+            <p class="section-subtitle">Get access to our most accurate predictions and in-depth analysis</p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Weekly</h3>
+                        <div class="price">$9.99</div>
+                        <span class="price-period">per week</span>
+                    </div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> All Premium Predictions</li>
+                        <li><i class="fas fa-check"></i> HT/FT Analysis</li>
+                        <li><i class="fas fa-check"></i> Correct Score Tips</li>
+                        <li><i class="fas fa-times"></i> Live Match Updates</li>
+                    </ul>
+                    <button class="btn-subscribe">Subscribe Now</button>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="pricing-header">
+                        <h3>Monthly</h3>
+                        <div class="price">$29.99</div>
+                        <span class="price-period">per month</span>
+                    </div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> All Premium Predictions</li>
+                        <li><i class="fas fa-check"></i> HT/FT Analysis</li>
+                        <li><i class="fas fa-check"></i> Correct Score Tips</li>
+                        <li><i class="fas fa-check"></i> Live Match Updates</li>
+                        <li><i class="fas fa-check"></i> Expert Consultant Access</li>
+                    </ul>
+                    <button class="btn-subscribe popular">Subscribe Now</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Quarterly</h3>
+                        <div class="price">$79.99</div>
+                        <span class="price-period">per quarter</span>
+                    </div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> All Premium Features</li>
+                        <li><i class="fas fa-check"></i> Priority Support</li>
+                        <li><i class="fas fa-check"></i> Custom Analysis Reports</li>
+                        <li><i class="fas fa-check"></i> VIP Webinars</li>
+                    </ul>
+                    <button class="btn-subscribe">Subscribe Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose Sport IQ Premium?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Data-Driven Analysis</h3>
+                    <p>Advanced algorithms and statistical models power our predictions</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Expert Team</h3>
+                    <p>Professional analysts with years of football experience</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Live Updates</h3>
+                    <p>Real-time match insights and in-play analysis</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Proven Track Record</h3>
+                    <p>Consistent performance and transparent results history</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Sport IQ</h4>
+                    <p>Your trusted source for premium football predictions and analysis.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#home">Home</a>
+                    <a href="#predictions">Predictions</a>
+                    <a href="#premium">Premium</a>
+                    <a href="#analysis">Analysis</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Disclaimer</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Sport IQ. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

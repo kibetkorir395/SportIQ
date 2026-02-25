@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Basic Meta Tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Sport IQ - Premium Football Predictions">
+  <meta name="description"
+    content="Get accurate football predictions, expert analysis, and premium betting tips. Join thousands of winning bettors using Sport IQ data-driven insights.">
+  <meta name="keywords" content="football predictions, betting tips, soccer predictions, premium tips, sport iq">
+  <meta name="author" content="Sport IQ">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon (using logo.png) -->
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+
+
+  <!-- Open Graph / Facebook / WhatsApp / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sportiq.com/">
+  <meta property="og:title" content="Sport IQ - Premium Football Predictions">
+  <meta property="og:description"
+    content="Get accurate football predictions, expert analysis, and premium betting tips. Join thousands of winning bettors using Sport IQ data-driven insights.">
+  <meta property="og:image" content="https://sportiq.com/logo.png">
+  <meta property="og:site_name" content="Sport IQ">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://sportiq.com/">
+  <meta name="twitter:title" content="Sport IQ - Premium Football Predictions">
+  <meta name="twitter:description"
+    content="Get accurate football predictions, expert analysis, and premium betting tips. Join thousands of winning bettors using Sport IQ data-driven insights.">
+  <!--<meta name="twitter:image" content="https://sportiq.com/logo.png">-->
+  <meta name="twitter:image" content="/logo.png">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#2c5aa0">
+
+  <!-- Font Awesome (keep this for icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Your CSS (Vite handles this automatically) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const switchToRegister = document.getElementById('switchToRegister');
+      const switchToLogin = document.getElementById('switchToLogin');
+
+      // Switch to register form
+      registerTab.addEventListener('click', function () {
+        loginTab.classList.remove('active');
+        registerTab.classList.add('active');
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+      });
+
+      switchToRegister.addEventListener('click', function (e) {
+        e.preventDefault();
+        registerTab.click();
+      });
+
+      // Switch to login form
+      loginTab.addEventListener('click', function () {
+        registerTab.classList.remove('active');
+        loginTab.classList.add('active');
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+      });
+
+      switchToLogin.addEventListener('click', function (e) {
+        e.preventDefault();
+        loginTab.click();
+      });
+
+      // Form validation and submission
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Simple validation
+        if (email && password) {
+          alert('Login successful! Redirecting to your dashboard...');
+          // In a real application, you would handle the login process here
+        } else {
+          alert('Please fill in all fields');
+        }
+      });
+
+      registerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const confirm = document.getElementById('reg-confirm').value;
+        const terms = document.getElementById('terms').checked;
+
+        // Simple validation
+        if (!name || !email || !password || !confirm) {
+          alert('Please fill in all fields');
+          return;
+        }
+
+        if (password !== confirm) {
+          alert('Passwords do not match');
+          return;
+        }
+
+        if (!terms) {
+          alert('You must agree to the terms and conditions');
+          return;
+        }
+
+        alert('Registration successful! Welcome to Sport IQ.');
+        // In a real application, you would handle the registration process here
+      });
+    });
+  </script>
+</body>
+
+</html>

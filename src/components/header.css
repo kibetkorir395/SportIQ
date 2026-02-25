@@ -22,8 +22,6 @@
     align-items: center;
     padding: 1rem 2rem;
     max-width: 100%;
-    width: 100%;
-    background: yellow;
     margin: 0 auto;
     position: relative;
 }
@@ -86,6 +84,7 @@
 .nav-menu {
     display: flex;
     gap: 2rem;
+    display: none;
 }
 
 .nav-menu-header {

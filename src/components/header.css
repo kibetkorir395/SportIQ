@@ -241,8 +241,8 @@
 
     .nav-menu {
         position: fixed;
-        top: 0;
-        right: -100%;
+        top: -100%;
+        right: 0;
         width: 80%;
         max-width: 350px;
         height: 100vh;
@@ -255,7 +255,7 @@
     }
 
     .nav-menu.active {
-        right: 0;
+        top: 0;
     }
 
     .nav-menu-header {

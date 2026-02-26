@@ -25,9 +25,12 @@ html, body {
     padding: 0;
 }
 
-html {
-  
-  background: yellow;
+/* Ensure root element doesn't overflow */
+#root {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
 }
 
 body {

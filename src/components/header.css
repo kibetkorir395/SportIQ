@@ -22,8 +22,10 @@
     padding: 1rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
-
     position: relative;
+
+    width: 100%;
+    max-width: 100%;
 }
 
 /* Logo */
@@ -33,10 +35,10 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--primary);
-
-
     text-decoration: none;
     transition: transform 0.3s ease;
+
+    white-space: nowrap;
 }
 
 .nav-logo:hover {
@@ -45,7 +47,6 @@
 
 .nav-logo i {
     margin-right: 0.5rem;
-
     font-size: 1.8rem;
 }
 
@@ -87,6 +88,8 @@
 .nav-menu {
     display: flex;
     gap: 2rem;
+
+    /*align-items: center;*/
 }
 
 .nav-menu-header {
@@ -108,6 +111,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
+    white-space: nowrap;
 }
 
 .nav-link i {
@@ -184,6 +189,8 @@
 /* User Menu */
 .user-menu {
     position: relative;
+
+    flex-shrink: 0;
 }
 
 .user-avatar {
@@ -237,6 +244,10 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .nav-auth {
+        /*display: none;*/
+    }
+    
     .hamburger-btn {
         display: flex;
     }
@@ -294,6 +305,8 @@
         flex-direction: column;
         padding: 1.5rem;
         gap: 1rem;
+
+        width: 100%;
     }
 
     .nav-link {
@@ -348,7 +361,7 @@
         background: var(--primary);
         color: white;
         display: flex;
-        align-items: center;
+        align-items: center;]
         justify-content: center;
         font-weight: bold;
         font-size: 1rem;

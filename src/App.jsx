@@ -80,6 +80,12 @@ function AppContent() {
     }
   };
 
+  useEffect(() => {
+    axios.get("https://webws.365scores.com/web/trends/?appTypeId=5&langId=1&timezoneName=Africa/Nairobi&userCountryId=144&competition=17").then((data) => {
+      console.log(data.data)
+    })
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />

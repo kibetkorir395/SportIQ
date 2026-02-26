@@ -16,6 +16,7 @@ import { useModal } from "./components/Modal";
 import Profile from "./pages/profile";
 import Tips from "./pages/tips";
 import Admin from "./pages/admin";
+import axios from "axios";
 
 // ScrollToTop component
 function ScrollToTop() {

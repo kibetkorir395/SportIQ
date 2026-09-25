@@ -87,15 +87,14 @@ function AppContent() {
     })
   }, []);*/
 
-  /*useEffect(() => {
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Example public proxy
-    const targetUrl = 'https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-02-27';
-    axios.get(proxyUrl + targetUrl).then((response) => {
+  useEffect(() => {
+    const targetUrl = 'https://sporticos-api-production.up.railway.app/';//'https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-02-27';
+    axios.get(targetUrl).then((response) => {
       console.log(response.data)
     }).catch(error => {
-      console.error("CORS Proxy error:", error);
+      console.error("CORS Proxy error:", error); 
     });
-  }, []);*/
+  }, []);
 
   return (
     <Router>

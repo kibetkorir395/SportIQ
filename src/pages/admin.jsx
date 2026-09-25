@@ -171,16 +171,16 @@ function Admin({ showNotification, showModal }) {
 
   return (
     <div className="admin-container">
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
         showSkipButton={true}
         showProgress={true}
         styles={{
-          options: { primaryColor: '#22c55e' }
+          options: { primaryColor: '#2c5aa0' }
         }}
-      />
+      />*/}
 
       <div className="admin-header">
         <h1>Admin Dashboard</h1>

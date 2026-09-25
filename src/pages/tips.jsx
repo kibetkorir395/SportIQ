@@ -190,16 +190,16 @@ function Tips({ showNotification, showModal }) {
 
   return (
     <section id="predictions" className="predictions">
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
         showSkipButton={true}
         showProgress={true}
         styles={{
-          options: { primaryColor: '#22c55e' }
+          options: { primaryColor: '#2c5aa0' }
         }}
-      />
+      />*/}
 
       <div className="container">
         <h2 style={{ fontSize: "20px", marginBottom: "16px" }}>Today's Premium Predictions</h2>

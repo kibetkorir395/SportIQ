@@ -81,11 +81,21 @@ function AppContent() {
     }
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     axios.get("https://webws.365scores.com/web/trends/?appTypeId=5&langId=1&timezoneName=Africa/Nairobi&userCountryId=144&competition=17").then((data) => {
       console.log(data.data)
     })
-  }, []);
+  }, []);*/
+
+  /*useEffect(() => {
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Example public proxy
+    const targetUrl = 'https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-02-27';
+    axios.get(proxyUrl + targetUrl).then((response) => {
+      console.log(response.data)
+    }).catch(error => {
+      console.error("CORS Proxy error:", error);
+    });
+  }, []);*/
 
   return (
     <Router>
@@ -107,7 +117,7 @@ function AppContent() {
         }}
         styles={{
           options: {
-            primaryColor: '#22c55e',
+            primaryColor: '#2c5aa0',
             textColor: '#333',
             backgroundColor: '#fff',
             arrowColor: '#fff',
@@ -116,7 +126,7 @@ function AppContent() {
       />
       <Routes>
         <Route path="/" element={<Home showNotification={showNotification} showModal={showModal} />}/>
-        <Route path="/predictions" element={<Predictions showNotification={showNotification} showModal={showModal} />}/>
+        <Route path="/predictions" element={<Tips showNotification={showNotification} showModal={showModal} />}/>
         <Route path="/premium" element={<Pricing showNotification={showNotification} showModal={showModal} />}/>
         <Route path="/payment" element={<Payment showNotification={showNotification} showModal={showModal} />} />
         <Route path="/get-started" element={<Auth showNotification={showNotification} showModal={showModal} />} />

@@ -157,16 +157,16 @@ export default function Auth({ showNotification, showModal }) {
 
   return (
     <div className="auth-container">
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
         showSkipButton={true}
         showProgress={true}
         styles={{
-          options: { primaryColor: '#22c55e' }
+          options: { primaryColor: '#2c5aa0' }
         }}
-      />
+      />*/}
 
       <div className="auth-tabs">
         <div

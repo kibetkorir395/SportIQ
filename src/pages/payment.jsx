@@ -14,6 +14,7 @@ export default function Payment({ showNotification, showModal }) {
   const [paymentDetail, setPaymentDetail] = useState('');
   const [pollingReference, setPollingReference] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
+  const baseUrl = 'https://payment-api-production.up.railway.app/api'
 
   // Get selected package from location state
   const [selectedPackage, setSelectedPackage] = useState(
@@ -125,31 +126,6 @@ export default function Payment({ showNotification, showModal }) {
     return p;
   };
 
-  // Generate random email
-  const generateRandomEmail = () => {
-    const letters = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    const domains = ['gmail.com', 'yahoo.com', 'outlook.com'];
-    
-    let username = '';
-    const usernameLength = Math.floor(Math.random() * 5) + 8;
-    
-    for (let i = 0; i < usernameLength; i++) {
-      if (i < 6) {
-        username += letters.charAt(Math.floor(Math.random() * letters.length));
-      } else {
-        if (Math.random() < 0.6) {
-          username += letters.charAt(Math.floor(Math.random() * letters.length));
-        } else {
-          username += numbers.charAt(Math.floor(Math.random() * numbers.length));
-        }
-      }
-    }
-    
-    const domain = domains[Math.floor(Math.random() * domains.length)];
-    return `${username}@${domain}`;
-  };
-
   // Payment polling
   const startPaymentPolling = (reference, amount) => {
     let attempts = 0;
@@ -184,7 +160,7 @@ export default function Payment({ showNotification, showModal }) {
       attempts++;
       
       try {
-        const response = await fetch(`https://payment-api-production.up.railway.app/api/status/${reference}`);
+        const response = await fetch(`${baseUrl}/status/${reference}`);
         const data = await response.json();
         
         if (data.success) {
@@ -317,10 +293,10 @@ export default function Payment({ showNotification, showModal }) {
       // Process M-Pesa payment
       if (selectedMethod === 'MPesa') {
         const formattedPhone = formatPhoneNumber(paymentDetail);
-        const email = generateRandomEmail();
+        const email = user.email;
         const amount = parseInt(selectedPricing.price);
 
-        const response = await fetch('https://genuine-flow-production-b0ae.up.railway.app/api/initialize', {
+        const response = await fetch(`${baseUrl}/initialize`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -374,16 +350,16 @@ export default function Payment({ showNotification, showModal }) {
 
   return (
     <div className="payment-container" style={{marginTop: "70px"}}>
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
         showSkipButton={true}
         showProgress={true}
         styles={{
-          options: { primaryColor: '#22c55e' }
+          options: { primaryColor: '#2c5aa0' }
         }}
-      />
+      />*/}
 
       <h2>Checkout</h2>
       
@@ -394,7 +370,7 @@ export default function Payment({ showNotification, showModal }) {
           padding: '15px',
           borderRadius: '10px',
           marginBottom: '20px',
-          border: '2px solid #22c55e'
+          border: '2px solid #2c5aa0'
         }}>
           <h3 style={{ color: '#166534', marginBottom: '5px' }}>
             {selectedPricing.period.charAt(0).toUpperCase() + selectedPricing.period.slice(1)}ly Plan

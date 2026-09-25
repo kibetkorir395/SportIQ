@@ -290,16 +290,16 @@ function Profile({ showNotification, showModal }) {
 
   return (
     <div className="profile-container">
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
         showSkipButton={true}
         showProgress={true}
         styles={{
-          options: { primaryColor: '#22c55e' }
+          options: { primaryColor: '#2c5aa0' }
         }}
-      />
+      />*/}
 
       <div className="profile-header">
         <div className="profile-avatar">

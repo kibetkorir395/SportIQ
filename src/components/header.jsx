@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation  } from 'react-router-dom';
 import { useFirebase } from '../contexts/FirebaseContext';
 import './header.css';
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useFirebase();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -21,7 +22,7 @@ export default function Header() {
   // Close menu when route changes
   useEffect(() => {
     setMenuOpen(false);
-  }, [location]);
+  }, [location.pathname]); // Fixed: use location.pathname instead of location
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -34,6 +35,19 @@ export default function Header() {
       document.body.style.overflow = 'unset';
     };
   }, [menuOpen]);
+
+  // Prevent body scroll when mobile menu is open
+  /*useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+    
+    return () => {
+      document.body.classList.remove('menu-open');
+    };
+  }, [menuOpen]);*/
 
   const handleNavClick = () => {
     setMenuOpen(false);
@@ -149,7 +163,10 @@ export default function Header() {
               ) : (
                 <div className="mobile-user-info">
                   <div className="mobile-user-avatar">
-                    {getInitials()}
+                    {user?.photoURL ? (
+                      <img src={user.photoURL} alt={user.displayName}/>) : (
+                        getInitials()
+                    )}
                   </div>
                   <div className="mobile-user-details">
                     <span className="mobile-user-name">{user.displayName || 'User'}</span>
@@ -190,9 +207,9 @@ export default function Header() {
                   <img src={user.photoURL} alt={user.displayName}/>) : (
                       getInitials()
                   )}
-                      </button>
-                    </div>
-            )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>

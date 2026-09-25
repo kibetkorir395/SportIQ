@@ -184,7 +184,7 @@ export default function Payment({ showNotification, showModal }) {
       attempts++;
       
       try {
-        const response = await fetch(`https://genuine-flow-production-b0ae.up.railway.app/api/status/${reference}`);
+        const response = await fetch(`https://payment-api-production.up.railway.app/api/status/${reference}`);
         const data = await response.json();
         
         if (data.success) {

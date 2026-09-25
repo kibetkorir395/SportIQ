@@ -186,10 +186,13 @@ export default function Header() {
                 onClick={() => navigate("/profile")}
                 title="Go to Profile"
               >
-                {getInitials()}
-              </button>
-            </div>
-          )}
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt={user.displayName}/>) : (
+                      getInitials()
+                  )}
+                      </button>
+                    </div>
+            )}
         </div>
       </div>
     </nav>

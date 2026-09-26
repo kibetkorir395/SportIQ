@@ -7,7 +7,6 @@ import Auth from "./pages/auth";
 import ErrorPage from "./pages/error-page";
 import Home from "./pages/home";
 import Pricing from "./pages/pricing";
-import Predictions2 from "./pages/predictions2";
 import Joyride from "react-joyride";
 import { useState, useEffect } from "react";
 import { FirebaseProvider } from "./contexts/FirebaseContext";
@@ -15,6 +14,7 @@ import { NotificationContainer, useNotification } from "./components/notificatio
 import { useModal } from "./components/Modal";
 import Profile from "./pages/profile";
 import Tips from "./pages/tips";
+import Predictions from "./pages/predictions";
 import Admin from "./pages/admin";
 import axios from "axios";
 
@@ -73,7 +73,7 @@ function AppContent() {
 
   const handleJoyrideCallback = (data) => {
     const { status, type } = data;
-    
+
     if (status === 'finished') {
       showNotification('🎉 Tour completed! You\'re ready to start winning!', 'success');
     } else if (status === 'skipped') {
@@ -124,9 +124,9 @@ function AppContent() {
         }}
       />*/}
       <Routes>
-        <Route path="/" element={<Home showNotification={showNotification} showModal={showModal} />}/>
-        <Route path="/predictions" element={<Predictions2 showNotification={showNotification} showModal={showModal} />}/>
-        <Route path="/premium" element={<Pricing showNotification={showNotification} showModal={showModal} />}/>
+        <Route path="/" element={<Home showNotification={showNotification} showModal={showModal} />} />
+        <Route path="/predictions" element={<Tips showNotification={showNotification} showModal={showModal} />} />
+        <Route path="/premium" element={<Pricing showNotification={showNotification} showModal={showModal} />} />
         <Route path="/payment" element={<Payment showNotification={showNotification} showModal={showModal} />} />
         <Route path="/get-started" element={<Auth showNotification={showNotification} showModal={showModal} />} />
         <Route path="/profile" element={<Profile showNotification={showNotification} showModal={showModal} />} />
@@ -134,9 +134,9 @@ function AppContent() {
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Footer />
-      <NotificationContainer 
-        notifications={notifications} 
-        removeNotification={removeNotification} 
+      <NotificationContainer
+        notifications={notifications}
+        removeNotification={removeNotification}
       />
       <Modal />
     </Router>

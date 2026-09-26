@@ -7,7 +7,7 @@ import Auth from "./pages/auth";
 import ErrorPage from "./pages/error-page";
 import Home from "./pages/home";
 import Pricing from "./pages/pricing";
-import Predictions from "./pages/predictions";
+import Predictions2 from "./pages/predictions2";
 import Joyride from "react-joyride";
 import { useState, useEffect } from "react";
 import { FirebaseProvider } from "./contexts/FirebaseContext";
@@ -87,20 +87,20 @@ function AppContent() {
     })
   }, []);*/
 
-  useEffect(() => {
-    const targetUrl = 'https://sporticos-api-production.up.railway.app/';//'https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-02-27';
+  /*useEffect(() => {
+    const targetUrl = 'https://sporticos-api-production.up.railway.app/api/fixtures';//'https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-02-27';
     axios.get(targetUrl).then((response) => {
       console.log(response.data)
     }).catch(error => {
       console.error("CORS Proxy error:", error); 
     });
-  }, []);
+  }, []);*/
 
   return (
     <Router>
       <ScrollToTop />
       <Header />
-      <Joyride
+      {/*<Joyride
         steps={steps}
         run={runTour}
         continuous={true}
@@ -122,10 +122,10 @@ function AppContent() {
             arrowColor: '#fff',
           },
         }}
-      />
+      />*/}
       <Routes>
         <Route path="/" element={<Home showNotification={showNotification} showModal={showModal} />}/>
-        <Route path="/predictions" element={<Tips showNotification={showNotification} showModal={showModal} />}/>
+        <Route path="/predictions" element={<Predictions2 showNotification={showNotification} showModal={showModal} />}/>
         <Route path="/premium" element={<Pricing showNotification={showNotification} showModal={showModal} />}/>
         <Route path="/payment" element={<Payment showNotification={showNotification} showModal={showModal} />} />
         <Route path="/get-started" element={<Auth showNotification={showNotification} showModal={showModal} />} />

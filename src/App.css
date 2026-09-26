@@ -171,13 +171,49 @@ body {
   color: var(--primary);
 }
 
-.prediction-filters {
+/*.prediction-filters {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
+}*/
+
+.prediction-filters {
+  display: flex;
+  justify-content: flex-start; /* Changed from center to keep items aligned left when scrolling */
+  gap: 1rem;
+  margin-bottom: 3rem;
+  width: 100%;
+  
+  /* New and updated properties for horizontal scrolling */
+  flex-wrap: nowrap;          /* Prevents items from dropping to the next line */
+  overflow-x: auto;           /* Enables horizontal scrolling when content overflows */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS devices */
 }
+
+
+  /* Hides scrollbar for Chrome, Safari and Opera */
+  .prediction-filters::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hides scrollbar for IE, Edge and Firefox */
+  .prediction-filters {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+/*.filter-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #ddd;
+  background: var(--white);
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  max-lines: 1;
+}*/
 
 .filter-btn {
   padding: 0.75rem 1.5rem;
@@ -187,7 +223,14 @@ body {
   cursor: pointer;
   font-weight: 500;
   transition: all 0.3s;
+  
+  /* Forces text to stay on a single line */
+  white-space: nowrap;
+  
+  /* Prevents the button itself from shrinking in the flex container */
+  flex-shrink: 0; 
 }
+
 
 .filter-btn.active,
 .filter-btn:hover {
@@ -257,8 +300,8 @@ body {
 }
 
 .team img {
-  width: 40px;
-  height: 40px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
 }
 

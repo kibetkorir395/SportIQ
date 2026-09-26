@@ -172,13 +172,28 @@ body {
     color: #2c5aa0;
 }
 
-.prediction-filters {
+/*.prediction-filters {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-bottom: 3rem;
     flex-wrap: wrap;
-}
+}*/
+
+.prediction-filters {
+    display: flex;
+    justify-content: flex-start; /* Changed from center to keep items aligned left when scrolling */
+    gap: 1rem;
+    margin-bottom: 3rem;
+    width: 100%;
+    
+    /* New and updated properties for horizontal scrolling */
+    flex-wrap: nowrap;          /* Prevents items from dropping to the next line */
+    overflow-x: auto;           /* Enables horizontal scrolling when content overflows */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS devices */
+  }
+  
+  
 
 .filter-btn {
     padding: 0.75rem 1.5rem;

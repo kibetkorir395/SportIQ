@@ -1,108 +1,119 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFirebase } from "../contexts/FirebaseContext";
 import { useUserSubscriptions } from "../hooks/useUserSubscriptions";
-import Joyride from 'react-joyride';
+import { useMatchPredictions } from "../hooks/useMatchPredictions";
+import Joyride from "react-joyride";
 
-// Sample predictions data (in real app, this would come from Firebase)
-const samplePredictions = [
-  {
-    id: 1,
-    league: "Premier League",
-    matchTime: "Today • 15:00 GMT",
-    homeTeam: "Manchester City",
-    awayTeam: "Liverpool",
-    isPremium: true,
-    predictions: [
-      { market: "1X2", prediction: "1", confidence: 85, confidenceLevel: "high" },
-      { market: "OVER/UNDER", prediction: "OVER 2.5", confidence: 72, confidenceLevel: "medium" },
-      { market: "GG/NG", prediction: "GG", confidence: 78, confidenceLevel: "high" },
-      { market: "Correct Score", prediction: "2-1", confidence: 68, confidenceLevel: "medium" }
-    ],
-    analysis: "City's home advantage and Liverpool's defensive issues suggest a home win. Both teams likely to score."
-  },
-  {
-    id: 2,
-    league: "La Liga",
-    matchTime: "Today • 17:30 GMT",
-    homeTeam: "Real Madrid",
-    awayTeam: "Barcelona",
-    isPremium: true,
-    predictions: [
-      { market: "1X2", prediction: "X", confidence: 45, confidenceLevel: "low" },
-      { market: "OVER/UNDER", prediction: "OVER 3.5", confidence: 82, confidenceLevel: "high" },
-      { market: "GG/NG", prediction: "GG", confidence: 88, confidenceLevel: "high" },
-      { market: "Correct Score", prediction: "2-2", confidence: 55, confidenceLevel: "medium" }
-    ],
-    analysis: "El Clasico always delivers drama. Expect goals from both sides in this high-stakes encounter."
-  },
-  {
-    id: 3,
-    league: "Serie A",
-    matchTime: "Today • 19:45 GMT",
-    homeTeam: "Inter Milan",
-    awayTeam: "AC Milan",
-    isPremium: true,
-    predictions: [
-      { market: "1X2", prediction: "1", confidence: 60, confidenceLevel: "medium" },
-      { market: "OVER/UNDER", prediction: "UNDER 2.5", confidence: 65, confidenceLevel: "medium" },
-      { market: "GG/NG", prediction: "NG", confidence: 55, confidenceLevel: "medium" },
-      { market: "Correct Score", prediction: "1-0", confidence: 45, confidenceLevel: "low" }
-    ],
-    analysis: "Derby della Madonnina promises to be a tactical battle. Expect a tight, low-scoring affair."
-  },
-  {
-    id: 4,
-    league: "Bundesliga",
-    matchTime: "Today • 14:30 GMT",
-    homeTeam: "Bayern Munich",
-    awayTeam: "Borussia Dortmund",
-    isPremium: true,
-    predictions: [
-      { market: "1X2", prediction: "1", confidence: 75, confidenceLevel: "high" },
-      { market: "OVER/UNDER", prediction: "OVER 3.5", confidence: 80, confidenceLevel: "high" },
-      { market: "GG/NG", prediction: "GG", confidence: 70, confidenceLevel: "medium" },
-      { market: "Correct Score", prediction: "3-1", confidence: 65, confidenceLevel: "medium" }
-    ],
-    analysis: "Der Klassiker! Bayern's home dominance and Dortmund's attacking style point to goals."
+// Map API confidence → UI level
+const toConfidenceLevel = (confidence) => {
+  if (typeof confidence === "number") {
+    if (confidence >= 75) return "high";
+    if (confidence >= 50) return "medium";
+    return "low";
   }
-];
+  const c = String(confidence || "").toLowerCase();
+  if (c.includes("high")) return "high";
+  if (c.includes("low")) return "low";
+  return "medium";
+};
+
+// Format ISO → "Today • 15:00 GMT"
+const formatMatchTime = (iso) => {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const today = new Date();
+    const isToday = d.toDateString() === today.toDateString();
+    const time = d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
+    return `${isToday ? "Today" : d.toLocaleDateString("en-GB")} • ${time} GMT`;
+  } catch {
+    return iso;
+  }
+};
+
+// Adapt raw Sporticos prediction → shape this component expects
+const adaptPrediction = (raw, index = 0) => {
+  const home = raw.home_team || raw.homeTeam || raw.home || "Home";
+  const away = raw.away_team || raw.awayTeam || raw.away || "Away";
+  const league = raw.league_name || raw.league || raw.competition || "";
+  const matchTime = formatMatchTime(raw.match_date || raw.kickoff || raw.date);
+
+  let marketList = [];
+
+  if (Array.isArray(raw.markets)) {
+    marketList = raw.markets.map((m) => ({
+      market: m.market || m.name || "1X2",
+      prediction: m.prediction || m.value || m.selection || "-",
+      confidence:
+        typeof m.confidence === "number"
+          ? m.confidence
+          : parseFloat(m.confidence) || 60,
+      confidenceLevel: toConfidenceLevel(m.confidence),
+    }));
+  } else if (raw.prediction) {
+    marketList = [
+      {
+        market: raw.market || "1X2",
+        prediction: raw.prediction,
+        confidence:
+          typeof raw.confidence === "number"
+            ? raw.confidence
+            : parseFloat(raw.confidence) || 60,
+        confidenceLevel: toConfidenceLevel(raw.confidence),
+      },
+    ];
+  }
+
+  return {
+    id: raw.id || raw.fixture_id || `pred-${index}`,
+    league,
+    matchTime,
+    homeTeam: home,
+    awayTeam: away,
+    isPremium: raw.is_premium ?? true,
+    predictions: marketList,
+    analysis:
+      raw.analysis ||
+      raw.reasoning ||
+      raw.expert_analysis ||
+      "Expert analysis coming soon.",
+    raw,
+  };
+};
 
 function Tips({ showNotification, showModal }) {
   const navigate = useNavigate();
-  const { user, userProfile } = useFirebase(); //subscriptions 
-  const { subscriptions, loading: subsLoading, hasActiveSubscription, activeSubscription } = useUserSubscriptions();
-  const [predictions, setPredictions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user, userProfile } = useFirebase();
+  const {
+    subscriptions,
+    loading: subsLoading,
+    hasActiveSubscription,
+    activeSubscription,
+  } = useUserSubscriptions();
+
   const [runTour, setRunTour] = useState(true);
   const [unlockedCards, setUnlockedCards] = useState([]);
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
 
-  // Check if user has active subscription
-  //const hasActiveSubscription = subscriptions?.some(sub => sub.status === 'active');
-  
+  const {
+    predictions: rawPredictions,
+    loading,
+    error,
+    fetchByDate,
+  } = useMatchPredictions({
+    autoFetch: true,
+    date,
+  });
 
-  // Fetch predictions
-  useEffect(() => {
-    const fetchPredictions = async () => {
-      setLoading(true);
-      try {
-        // In real app, you'd fetch from Firebase here
-        // const result = await getPredictions({ isPremium: true });
-        // if (result.success) setPredictions(result.predictions);
-      
-        // Simulate API call
-        setTimeout(() => {
-          setPredictions(samplePredictions);
-          setLoading(false);
-        }, 1000);
-      } catch (error) {
-        console.error('Error fetching predictions:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchPredictions();
-  }, []);
+  const predictions = useMemo(
+    () => (rawPredictions || []).map((p, i) => adaptPrediction(p, i)),
+    [rawPredictions],
+  );
 
   const isPageLoading = loading || subsLoading;
 
@@ -229,7 +240,7 @@ function Tips({ showNotification, showModal }) {
           <button className="filter-btn">High Confidence</button>
         </div>
 
-        <div className="predictions-grid">
+        {/*<div className="predictions-grid">
           {predictions.map((prediction) => {
             const isUnlocked = unlockedCards.includes(prediction.id) || hasActiveSubscription;
             
@@ -242,10 +253,10 @@ function Tips({ showNotification, showModal }) {
                 <div className="match-header">
                   <span className="league">{prediction.matchTime} • {prediction.league}</span>
                   <span className="premium-badge">Premium</span>
-                </div>
+                </div>*/}
                 
                 {/* Teams - Always visible */}
-                <div 
+                {/*<div 
                   className="teams" 
                   style={{ background: "var(--light-gray)" }}
                 >
@@ -264,10 +275,10 @@ function Tips({ showNotification, showModal }) {
                     />
                     <span>{prediction.awayTeam}</span>
                   </div>
-                </div>
+                </div>*/}
 
                 {/* Predictions - Only show if unlocked */}
-                {isUnlocked ? (
+                {/*{isUnlocked ? (
                   <>
                     <div className="match-time">{prediction.matchTime}</div>
                     
@@ -295,21 +306,21 @@ function Tips({ showNotification, showModal }) {
                     <div className="lock-icon">🔒</div>
                     <p>Subscribe to view predictions for this match</p>
                   </div>
-                )}
+                )}*/}
 
                 {/* Unlock Button - Only show if not unlocked */}
-                {!isUnlocked && (
+                {/*{!isUnlocked && (
                   <button 
                     className="btn-view-analysis btn-unlock" 
                     onClick={() => handleUnlock(prediction.id)}
                   >
                     Unlock Now
                   </button>
-                )}
-              </div>
+                )}*/}
+              {/*</div>
             );
           })}
-        </div>
+        </div>*/}
 
         {/* VIP Call to Action */}
         <div className="analysis-preview vip-cta" style={{ marginTop: "20px" }}>

@@ -7,23 +7,23 @@ import './profile.css';
 
 function Profile({ showNotification, showModal }) {
   const navigate = useNavigate();
-  const { 
-    user, 
-    userProfile, 
-    updateUserProfile, 
-    updateUserEmail, 
+  const {
+    user,
+    userProfile,
+    updateUserProfile,
+    updateUserEmail,
     updateUserPassword,
     signOutUser,
-    deleteUserAccount 
+    deleteUserAccount
   } = useFirebase();
   const { subscriptions, loading: subsLoading, hasActiveSubscription, activeSubscription } = useUserSubscriptions();
-  
+
   const [loading, setLoading] = useState(false);
   const [runTour, setRunTour] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [predictions, setPredictions] = useState([]);
   const [predictionsLoading, setPredictionsLoading] = useState(true);
-  
+
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     displayName: '',
@@ -64,7 +64,7 @@ function Profile({ showNotification, showModal }) {
           // In real app, fetch from Firebase
           // const result = await getUserPredictions(user.uid);
           // if (result.success) setPredictions(result.predictions);
-          
+
           // Sample data
           setTimeout(() => {
             setPredictions([
@@ -120,8 +120,8 @@ function Profile({ showNotification, showModal }) {
     },
     {
       target: '.subscription-card',
-      content: hasActiveSubscription 
-        ? 'View your current subscription details' 
+      content: hasActiveSubscription
+        ? 'View your current subscription details'
         : 'Upgrade to premium for access to all predictions',
       title: hasActiveSubscription ? 'Active Subscription' : 'No Active Subscription',
       placement: 'top',
@@ -134,7 +134,7 @@ function Profile({ showNotification, showModal }) {
 
     try {
       const result = await updateUserProfile(profileForm);
-      
+
       if (result.success) {
         showNotification('✅ Profile updated successfully!', 'success');
       } else {
@@ -149,7 +149,7 @@ function Profile({ showNotification, showModal }) {
 
   const handleEmailUpdate = async (e) => {
     e.preventDefault();
-    
+
     if (emailForm.newEmail !== emailForm.confirmEmail) {
       showNotification('Emails do not match', 'warning');
       return;
@@ -159,7 +159,7 @@ function Profile({ showNotification, showModal }) {
 
     try {
       const result = await updateUserEmail(emailForm.newEmail);
-      
+
       if (result.success) {
         showNotification('✅ Email updated successfully!', 'success');
         setEmailForm({ newEmail: '', confirmEmail: '' });
@@ -175,7 +175,7 @@ function Profile({ showNotification, showModal }) {
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       showNotification('Passwords do not match', 'warning');
       return;
@@ -190,7 +190,7 @@ function Profile({ showNotification, showModal }) {
 
     try {
       const result = await updateUserPassword(passwordForm.newPassword);
-      
+
       if (result.success) {
         showNotification('✅ Password updated successfully!', 'success');
         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -246,8 +246,8 @@ function Profile({ showNotification, showModal }) {
 
   const handleInputChange = (e, formType) => {
     const { name, value } = e.target;
-    
-    switch(formType) {
+
+    switch (formType) {
       case 'profile':
         setProfileForm(prev => ({ ...prev, [name]: value }));
         break;
@@ -324,25 +324,25 @@ function Profile({ showNotification, showModal }) {
       </div>
 
       <div className="profile-tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
           Profile Settings
         </button>
-        <button 
+        {/*<button 
           className={`tab-btn ${activeTab === 'subscription' ? 'active' : ''}`}
           onClick={() => setActiveTab('subscription')}
         >
           Subscription
         </button>
-        {/*<button 
+        <button 
           className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
         >
           Prediction History
         </button>*/}
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
           onClick={() => setActiveTab('security')}
         >
@@ -403,7 +403,7 @@ function Profile({ showNotification, showModal }) {
         {activeTab === 'subscription' && (
           <div className="profile-section">
             <h2>Subscription Details</h2>
-            
+
             {isPageLoading ? (
               <div className="loading-spinner small">
                 <div className="spinner"></div>
@@ -414,7 +414,7 @@ function Profile({ showNotification, showModal }) {
                   <div className="subscription-status">
                     {hasActiveSubscription ? '🟢 Active' : '🔴 Inactive'}
                   </div>
-                  
+
                   {hasActiveSubscription ? (
                     <>
                       <h3>{activeSubscription?.plan?.toUpperCase() + "LY"} Plan</h3>
@@ -425,7 +425,7 @@ function Profile({ showNotification, showModal }) {
                         <p>Started: {formatDate(activeSubscription?.startDate)}</p>
                         <p>Ends: {formatDate(activeSubscription?.endDate)}</p>
                       </div>
-                      <button 
+                      <button
                         className="btn-cancel"
                         onClick={() => {
                           showModal({
@@ -449,7 +449,7 @@ function Profile({ showNotification, showModal }) {
                     <>
                       <h3>No Active Subscription</h3>
                       <p>Upgrade to premium to access all predictions and features</p>
-                      <button 
+                      <button
                         className="btn-upgrade"
                         onClick={() => navigate('/premium')}
                       >
@@ -485,7 +485,7 @@ function Profile({ showNotification, showModal }) {
         {activeTab === 'history' && (
           <div className="profile-section">
             <h2>Your Prediction History</h2>
-            
+
             {predictionsLoading ? (
               <div className="loading-spinner small">
                 <div className="spinner"></div>
@@ -561,7 +561,7 @@ function Profile({ showNotification, showModal }) {
         {activeTab === 'security' && (
           <div className="profile-section">
             <h2>Security Settings</h2>
-            
+
             <div className="security-section">
               <h3>Update Email</h3>
               <form onSubmit={handleEmailUpdate}>
@@ -627,7 +627,7 @@ function Profile({ showNotification, showModal }) {
             <div className="security-section danger">
               <h3>Danger Zone</h3>
               <p>Once you delete your account, there is no going back. Please be certain.</p>
-              <button 
+              <button
                 className="btn-delete"
                 onClick={handleDeleteAccount}
               >

@@ -1,234 +1,182 @@
-// services/bettingTipsService.js
+// services/sporticosApiService.js
 import axios from "axios";
 
-const BASE_URL = "https://sporticos.com/api/proxy/api/en-gb/soccer/predictions-new/2026-09-25";
+const BASE_URL =
+  import.meta?.env?.VITE_SPORTICOS_API_URL ||
+  "https://sporticos-api-production.up.railway.app";
 
-const bettingTipsApi = axios.create({
+const sporticosApi = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 15000,
 });
 
-export const bettingTipsService = {
-  // Get all tips with optional filters
-  getAllTips: (params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      ...params,
-    }).toString();
+// Attach interceptors for consistent error shape
+sporticosApi.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    // Normalize upstream error shape from your API
+    const message =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.message ||
+      "An error occurred";
+    err.normalizedMessage = message;
+    return Promise.reject(err);
+  },
+);
 
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+// Helper to build query strings, dropping null/undefined
+const qs = (params = {}) => {
+  const sp = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== null && v !== undefined && v !== "") {
+      sp.append(k, Array.isArray(v) ? v.join(",") : v);
+    }
+  });
+  const str = sp.toString();
+  return str ? `?${str}` : "";
+};
+
+export const sporticosApiService = {
+  // ============ DOCS & HEALTH ============
+  getDocs: () => sporticosApi.get("/"),
+  getHealth: () => sporticosApi.get("/api/health"),
+
+  // ============ PROVIDERS & BOOKMAKERS ============
+  getProviders: (params = {}) => {
+    const { countryId = 4, isPublished = 1 } = params;
+    return sporticosApi.get(
+      `/api/providers${qs({ countryId, isPublished })}`,
+    );
   },
 
-  // Get tips with specific filter criteria
-  getTipsWithFilters: (filters = {}) => {
-    const defaultFilters = {
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: 50,
-    };
+  getBookmakers: () => sporticosApi.get("/api/bookmakers"),
 
-    const mergedFilters = { ...defaultFilters, ...filters };
-    const queryParams = new URLSearchParams();
-
-    // Convert filters to query parameters
-    Object.entries(mergedFilters).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        queryParams.append(key, value);
-      }
-    });
-
-    return bettingTipsApi.get(`/tips-feed?${queryParams.toString()}`);
+  // ============ MATCHES & FIXTURES ============
+  getLiveMatches: (params = {}) => {
+    // Accept ids as array or comma string
+    const { ids = [] } = params;
+    const idsParam = Array.isArray(ids) ? ids.join(",") : ids;
+    return sporticosApi.get(`/api/live${qs({ ids: idsParam })}`);
   },
 
-  // Get tips by user ID
-  getTipsByUser: (userId, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      user_id: `eq.${userId}`,
-      ...params,
-    }).toString();
-
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getCompetitionsWithMatches: (params = {}) => {
+    const { limit = 50, offset = 0, fromDate, toDate } = params;
+    return sporticosApi.get(
+      `/api/matches/${qs({ limit, offset, fromDate, toDate })}`,
+    );
   },
 
-  // Get tips by league
-  getTipsByLeague: (leagueId, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      league_id: `eq.${leagueId}`,
-      ...params,
-    }).toString();
+  getFixtures: () => sporticosApi.get("/api/fixtures"),
 
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  // ============ MATCH DETAILS ============
+  getMatch: (matchId) => sporticosApi.get(`/api/match/${matchId}`),
+
+  getMatchHowToWatch: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/how-to-watch`),
+
+  getMatchHeader: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/header`),
+
+  getMatchTv: (matchId) => sporticosApi.get(`/api/match/${matchId}/tv`),
+
+  getMatchVpnOffer: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/vpn-offer`),
+
+  getMatchOddsAndPredictions: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/odds_and_predictions`),
+
+  getMatchBettingTips: (matchId, params = {}) => {
+    const { limit = 100, offset = 0 } = params;
+    return sporticosApi.get(
+      `/api/match/${matchId}/betting_tips${qs({ limit, offset })}`,
+    );
   },
 
-  // Get tips by fixture/match
-  getTipsByFixture: (fixtureId, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      fixture_id: `eq.${fixtureId}`,
-      ...params,
-    }).toString();
+  getMatchHeadToHead: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/h2h`),
 
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getMatchBrackets: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/brackets`),
+
+  getMatchFeeds: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/feeds`),
+
+  getMatchForm: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/form`),
+
+  getMatchStatistics: (matchId) =>
+    sporticosApi.get(`/api/match/${matchId}/statistics`),
+
+  // ============ PREDICTIONS ============
+  getPredictionsByDate: (date) =>
+    sporticosApi.get(`/api/predictions/${date}`),
+
+  getPredictionPosts: (params = {}) => {
+    const { limit = 50, offset = 0, is_published = 1, lang = "en" } = params;
+    return sporticosApi.get(
+      `/api/prediction_posts${qs({ limit, offset, is_published, lang })}`,
+    );
   },
 
-  // Get tips by bet type
-  getTipsByBetType: (betType, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      bet_type: `eq.${betType}`,
-      ...params,
-    }).toString();
-
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getPredictionByMarket: (params = {}) => {
+    const { market = "full_time_result", date } = params;
+    return sporticosApi.get(
+      `/api/prediction_market/${qs({ market, date })}`,
+    );
   },
 
-  // Get tips by status (won/lost)
-  getTipsByStatus: (status, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      status: `eq.${status}`,
-      ...params,
-    }).toString();
-
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getPredictionByFixture: (params = {}) => {
+    const { homeTeamName, awayTeamName, date, lang = "en" } = params;
+    return sporticosApi.get(
+      `/api/prediction_fixture/${qs({
+        homeTeamName,
+        awayTeamName,
+        date,
+        lang,
+      })}`,
+    );
   },
 
-  // Get tips by confidence level
-  getTipsByConfidence: (confidence, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      confidence: `eq.${confidence}`,
-      ...params,
-    }).toString();
+  // ============ LEAGUES ============
+  getLeagueHeader: (leagueId) =>
+    sporticosApi.get(`/api/league/${leagueId}/header`),
 
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getLeagueTable: (leagueId) =>
+    sporticosApi.get(`/api/league/${leagueId}/table`),
+
+  getLeagueLastResults: (leagueId) =>
+    sporticosApi.get(`/api/league/${leagueId}/lastResults`),
+
+  getLeagueFixtures: (leagueId, params = {}) => {
+    const { limit = 10, offset = 0 } = params;
+    return sporticosApi.get(
+      `/api/league/${leagueId}/fixtures${qs({ limit, offset })}`,
+    );
   },
 
-  // Get tips within date range
-  getTipsByDateRange: (startDate, endDate, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: "50",
-      created_at: `gte.${startDate}`,
-      created_at: `lte.${endDate}`,
-      ...params,
-    }).toString();
-
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  // ============ POSTS & GUIDES ============
+  getPosts: (params = {}) => {
+    const { limit = 10, offset = 0, isPublished = 1, lang = "en" } = params;
+    return sporticosApi.get(
+      `/api/posts${qs({ limit, offset, isPublished, lang })}`,
+    );
   },
 
-  // Get tips with pagination
-  getTipsWithPagination: (limit = 50, offset = 0, params = {}) => {
-    const queryParams = new URLSearchParams({
-      select: "*",
-      moderation_status: "eq.approved",
-      is_publishable: "eq.true",
-      order: "created_at.desc",
-      limit: limit.toString(),
-      offset: offset.toString(),
-      ...params,
-    }).toString();
+  getPostById: (postId) => sporticosApi.get(`/api/posts/${postId}`),
 
-    return bettingTipsApi.get(`/tips-feed?${queryParams}`);
+  getPostByTitle: (title) =>
+    sporticosApi.get(`/api/posts/${encodeURIComponent(title)}`),
+
+  getGuides: (params = {}) => {
+    const { limit = 50, offset = 0, isPublished = 1, lang = "en" } = params;
+    return sporticosApi.get(
+      `/api/guides${qs({ limit, offset, isPublished, lang })}`,
+    );
   },
 };
 
-// Types for TypeScript (optional)
-/*export const BetType = {
-  WIN_DRAW_WIN: '1X2',
-  BOTH_TEAMS_SCORE: 'Both Teams to Score',
-  OVER_UNDER: 'Over / Under',
-} as const;
-
-export const ConfidenceLevel = {
-  HIGH: 'high',
-  MEDIUM: 'medium',
-  LOW: 'low',
-} as const;
-
-export const TipStatus = {
-  WON: 'won',
-  LOST: 'lost',
-  PENDING: 'pending',
-} as const;
-
-// Response types
-export interface Tip {
-  id: string;
-  user_id: string;
-  fixture_id: number;
-  league_id: number;
-  league_name: string;
-  match_teams: string;
-  match_date: string;
-  bet_type: string;
-  odds: string;
-  reasoning: string;
-  confidence: string;
-  status: string;
-  created_at: string;
-  published_at: string;
-  user: {
-    username: string;
-    avatar_url: string | null;
-    country_code: string;
-    competition_points: number;
-  };
-  country: {
-    name: string;
-    flag: string;
-  };
-  bookmaker: {
-    name: string | null;
-    logo_url: string;
-    url: string;
-  };
-}
-
-export interface TipsResponse {
-  tips: Tip[];
-  count: number;
-  filters: {
-    limit: number;
-    offset: number;
-    days_back: number;
-  };
-  timestamp: string;
-}*/
+export default sporticosApiService;

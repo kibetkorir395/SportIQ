@@ -335,30 +335,6 @@
     color: #333;
 }
 
-/* Placeholder Tab */
-.placeholder-tab {
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.placeholder-tab i {
-    font-size: 3rem;
-    color: var(--primary);
-    margin-bottom: 20px;
-}
-
-.placeholder-tab h3 {
-    color: var(--dark);
-    margin-bottom: 10px;
-}
-
-.placeholder-tab p {
-    color: var(--gray);
-}
-
 /* Loading Spinner */
 .loading-spinner {
     display: flex;

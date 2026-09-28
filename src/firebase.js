@@ -83,6 +83,7 @@ export const signUpWithEmail = async (email, password, userData) => {
       displayName: userData.name || "",
       phoneNumber: userData.phone || "",
       membership: "free",
+      isActive: true,
       joinDate: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       ...userData,
@@ -139,6 +140,7 @@ export const signInWithGoogle = async () => {
         displayName: user.displayName || "",
         photoURL: user.photoURL || "",
         membership: "free",
+        isActive: true,
         joinDate: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       });
@@ -172,6 +174,7 @@ export const signInWithFacebook = async () => {
         displayName: user.displayName || "",
         photoURL: user.photoURL || "",
         membership: "free",
+        isActive: true,
         joinDate: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       });
@@ -213,9 +216,17 @@ export const updateUserProfile = async (updates) => {
   try {
     const user = auth.currentUser;
 
-    if (!user) {
-      return { success: false, error: "No user logged in" };
+    let userId //= user.id
+
+    if (updates.isAdmin && updates.id) {
+      userId = updates.id
+      const { isAdmin, id, ...rest } = updates;
+      updates = rest;
     }
+
+    /*if (!user) {
+      return { success: false, error: "No user logged in" };
+    }*/
 
     // Update auth profile
     if (updates.displayName || updates.photoURL) {
@@ -226,7 +237,7 @@ export const updateUserProfile = async (updates) => {
     }
 
     // Update Firestore user document
-    await updateDoc(doc(db, "users", user.uid), updates);
+    await updateDoc(doc(db, "users", userId), updates);
 
     return { success: true };
   } catch (error) {
@@ -746,12 +757,41 @@ export const createSubscription = async (subscriptionData) => {
   }
 };
 
+// Get users subscriptions
+export const getAllSubscriptions = async (pageSize = 20, lastDoc = null) => {
+  try {
+    let subscriptionsQuery = collection(db, "subscriptions");
+    const queryConstraints = [orderBy("createdAt", "desc")];
+
+    if (lastDoc) {
+      queryConstraints.push(startAfter(lastDoc));
+    }
+    queryConstraints.push(limit(pageSize));
+
+    const q = query(subscriptionsQuery, ...queryConstraints);
+    const querySnapshot = await getDocs(q);
+
+    // FIX 1: Rename the local array variable to match what you return
+    const subscriptions = [];
+    querySnapshot.forEach((doc) => {
+      subscriptions.push({ id: doc.id, ...doc.data() });
+    });
+
+    const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+    // FIX 2: Correct spelling/variable reference here
+    return { success: true, subscriptions, lastVisible };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
 // Get user subscriptions
 export const getUserSubscriptions = async (userId) => {
   try {
     const subscriptionsQuery = query(
       collection(db, "subscriptions"),
-      //where("userId", "==", userId),
+      where("userId", "==", userId),
       orderBy("createdAt", "desc"),
     );
 
@@ -767,6 +807,7 @@ export const getUserSubscriptions = async (userId) => {
     return { success: false, error: error.message };
   }
 };
+
 
 // Cancel subscription
 export const cancelSubscription = async (subscriptionId) => {
@@ -785,6 +826,31 @@ export const cancelSubscription = async (subscriptionId) => {
       await updateUserMembership(subscription.userId, {
         membership: "free",
         subscriptionId: null,
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const toggleSubscription = async (subscriptionId, status, membership = 'free') => {
+  try {
+    const docRef = doc(db, "subscriptions", subscriptionId);
+
+    await updateDoc(docRef, {
+      status,
+      updatedAt: new Date().toISOString(),
+    });
+
+    // Get subscription to update user membership
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const subscription = docSnap.data();
+      await updateUserMembership(subscription.userId, {
+        membership,
+        ...(membership === 'free' && { subscriptionId: null })
       });
     }
 

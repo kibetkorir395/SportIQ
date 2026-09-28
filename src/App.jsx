@@ -125,7 +125,7 @@ function AppContent() {
       />*/}
       <Routes>
         <Route path="/" element={<Home showNotification={showNotification} showModal={showModal} />} />
-        <Route path="/predictions" element={<Tips showNotification={showNotification} showModal={showModal} />} />
+        <Route path="/predictions" element={<Predictions showNotification={showNotification} showModal={showModal} />} />
         <Route path="/premium" element={<Pricing showNotification={showNotification} showModal={showModal} />} />
         <Route path="/payment" element={<Payment showNotification={showNotification} showModal={showModal} />} />
         <Route path="/get-started" element={<Auth showNotification={showNotification} showModal={showModal} />} />

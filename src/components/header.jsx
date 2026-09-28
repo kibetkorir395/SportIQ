@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation  } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useFirebase } from '../contexts/FirebaseContext';
 import './header.css';
 
@@ -70,7 +70,7 @@ export default function Header() {
         </NavLink>
 
         {/* Hamburger Menu Button (Mobile) */}
-        <button 
+        <button
           className={`hamburger-btn ${menuOpen ? 'active' : ''}`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
@@ -87,7 +87,7 @@ export default function Header() {
               <i className="fas fa-futbol" />
               <span>Sport IQ</span>
             </NavLink>
-            <button 
+            <button
               className="close-menu-btn"
               onClick={() => setMenuOpen(false)}
               aria-label="Close menu"
@@ -97,8 +97,8 @@ export default function Header() {
           </div>
 
           <div className="nav-links">
-            <NavLink 
-              to="/" 
+            <NavLink
+              to="/"
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               onClick={handleNavClick}
             >
@@ -106,8 +106,8 @@ export default function Header() {
               <span>Home</span>
             </NavLink>
 
-            <NavLink 
-              to="/predictions" 
+            <NavLink
+              to="/predictions"
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               onClick={handleNavClick}
             >
@@ -115,8 +115,17 @@ export default function Header() {
               <span>Predictions</span>
             </NavLink>
 
-            <NavLink 
-              to="/premium" 
+            <NavLink
+              to="/admin"
+              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+              onClick={handleNavClick}
+            >
+              <i className="fas fa-chart-line"></i>
+              <span>Admin</span>
+            </NavLink>
+
+            <NavLink
+              to="/premium"
               className={({ isActive }) => `nav-link premium-btn ${isActive ? 'active' : ''}`}
               onClick={handleNavClick}
             >
@@ -126,8 +135,8 @@ export default function Header() {
 
             {user && (
               <>
-                <NavLink 
-                  to="/profile" 
+                <NavLink
+                  to="/profile"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={handleNavClick}
                 >
@@ -141,8 +150,8 @@ export default function Header() {
             <div className="mobile-auth">
               {!user ? (
                 <>
-                  <button 
-                    className="btn-login" 
+                  <button
+                    className="btn-login"
                     onClick={() => {
                       navigate("/get-started");
                       handleNavClick();
@@ -150,8 +159,8 @@ export default function Header() {
                   >
                     Login
                   </button>
-                  <button 
-                    className="btn-signup" 
+                  <button
+                    className="btn-signup"
                     onClick={() => {
                       navigate("/get-started");
                       handleNavClick();
@@ -164,8 +173,8 @@ export default function Header() {
                 <div className="mobile-user-info">
                   <div className="mobile-user-avatar">
                     {user?.photoURL ? (
-                      <img src={user.photoURL} alt={user.displayName}/>) : (
-                        getInitials()
+                      <img src={user.photoURL} alt={user.displayName} />) : (
+                      getInitials()
                     )}
                   </div>
                   <div className="mobile-user-details">
@@ -187,26 +196,26 @@ export default function Header() {
           <button className="btn-signup" style={{ display: "none" }} onClick={() => navigate("/register")}>
             Sign Up
           </button>
-          
+
           {/* Actual auth buttons based on user state */}
           {!user ? (
-            <button 
-              className="btn-signup desktop-get-started" 
+            <button
+              className="btn-signup desktop-get-started"
               onClick={() => navigate("/get-started")}
             >
               Get Started
             </button>
           ) : (
             <div className="user-menu">
-              <button 
+              <button
                 className="user-avatar"
                 onClick={() => navigate("/profile")}
                 title="Go to Profile"
               >
                 {user?.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName}/>) : (
-                      getInitials()
-                  )}
+                  <img src={user.photoURL} alt={user.displayName} />) : (
+                  getInitials()
+                )}
               </button>
             </div>
           )}

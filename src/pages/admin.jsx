@@ -3,33 +3,89 @@ import { useNavigate } from "react-router-dom";
 import { useFirebase } from "../contexts/FirebaseContext";
 import Joyride from 'react-joyride';
 import './admin.css';
+//import {getUserProfile,updateUserMembership} from '../firebase';
+import { useAdmin } from "../hooks/useAdmin";
+import { deleteUserAccount } from "../firebase"; // for real delete
 
 function Admin({ showNotification, showModal }) {
   const navigate = useNavigate();
-  const { user, userProfile } = useFirebase();
-  const [loading, setLoading] = useState(true);
+  const { user } = useFirebase();
   const [runTour, setRunTour] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
-    totalUsers: 1247,
-    activeSubscriptions: 342,
     totalPredictions: 89,
     totalRevenue: 456000,
     recentUsers: [],
     recentPredictions: []
   });
 
-  // Mock data for demonstration
-  const [users, setUsers] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", membership: "premium", joinDate: "2024-02-01", status: "active" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", membership: "free", joinDate: "2024-02-15", status: "active" },
-    { id: 3, name: "Mike Johnson", email: "mike@example.com", membership: "premium", joinDate: "2024-01-28", status: "active" },
-    { id: 4, name: "Sarah Williams", email: "sarah@example.com", membership: "free", joinDate: "2024-02-10", status: "inactive" },
-    { id: 5, name: "David Brown", email: "david@example.com", membership: "premium", joinDate: "2024-01-15", status: "active" },
-    { id: 6, name: "Emily Davis", email: "emily@example.com", membership: "free", joinDate: "2024-02-20", status: "active" },
-    { id: 7, name: "Chris Wilson", email: "chris@example.com", membership: "premium", joinDate: "2024-01-05", status: "active" },
-    { id: 8, name: "Lisa Anderson", email: "lisa@example.com", membership: "free", joinDate: "2024-02-18", status: "inactive" },
-  ]);
+  const {
+    // Shared
+    loading,
+    error,
+    // Users
+    users,
+    hasMoreUsers,
+    fetchUsers,
+    toggleUserStatus,
+    removeUserFromList,
+    // Subscriptions
+    subscriptions,
+    hasMoreSubscriptions,
+    fetchSubscriptions,
+    cancelSubscription,
+    toggleSubscription
+  } = useAdmin();
+
+  // Initial load on mount
+  useEffect(() => {
+    fetchUsers(true);
+    fetchSubscriptions(true);
+  }, [fetchUsers, fetchSubscriptions]);
+
+  // --- Handlers ---
+
+  const handleToggleUserStatus = async (userId) => {
+    const result = await toggleUserStatus(userId);
+    if (result.success) {
+      showNotification('User status updated', 'info');
+    } else {
+      showNotification(result.error || 'Failed to update user status', 'error');
+    }
+  };
+
+  const handleDeleteUser = (userId) => {
+    showModal({
+      type: 'warning',
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        // Replace with your actual delete API call
+        // const result = await deleteUserAccount(userId);
+        // if (result.success) removeUserFromList(userId);
+        removeUserFromList(userId); // optimistic
+        showNotification('User deleted successfully', 'success');
+      },
+      showCancel: true
+    });
+  };
+
+  /*const handleDeleteUser = (userId) => {
+    showModal({
+      type: 'warning',
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        setSampleUsersUsers(users.filter(u => u.id !== userId));
+        showNotification('User deleted successfully', 'success');
+      },
+      showCancel: true
+    });
+  };*/
 
   const [predictions, setPredictions] = useState([
     { id: 1, match: "Manchester City vs Liverpool", league: "Premier League", date: "2024-02-23", status: "active", views: 234, accuracy: "85%" },
@@ -40,19 +96,11 @@ function Admin({ showNotification, showModal }) {
     { id: 6, match: "Ajax vs Feyenoord", league: "Eredivisie", date: "2024-02-18", status: "archived", views: 76, accuracy: "83%" },
   ]);
 
-  const [subscriptions, setSubscriptions] = useState([
-    { id: 1, user: "John Doe", plan: "monthly", amount: 2000, startDate: "2024-02-01", endDate: "2024-03-01", status: "active" },
-    { id: 2, user: "Jane Smith", plan: "weekly", amount: 600, startDate: "2024-02-15", endDate: "2024-02-22", status: "active" },
-    { id: 3, user: "Mike Johnson", plan: "monthly", amount: 2000, startDate: "2024-01-28", endDate: "2024-02-28", status: "active" },
-    { id: 4, user: "Sarah Williams", plan: "quarterly", amount: 5000, startDate: "2024-01-01", endDate: "2024-04-01", status: "expired" },
-    { id: 5, user: "David Brown", plan: "monthly", amount: 2000, startDate: "2024-01-15", endDate: "2024-02-15", status: "active" },
-  ]);
-
   // Check if user is admin
-  useEffect(() => {
+  /*useEffect(() => {
     // In real app, check if user has admin role
     const isAdmin = user?.email === 'admin@sportiq.com' || userProfile?.role === 'admin';
-    
+
     if (!user) {
       showModal({
         type: 'warning',
@@ -70,12 +118,12 @@ function Admin({ showNotification, showModal }) {
         onConfirm: () => navigate('/')
       });
     }
-    
+
     // Simulate loading data
     setTimeout(() => {
       setLoading(false);
     }, 1000);
-  }, [user, userProfile, navigate, showModal]);
+  }, [user, userProfile, navigate, showModal]);*/
 
   const steps = [
     {
@@ -98,30 +146,6 @@ function Admin({ showNotification, showModal }) {
     }
   ];
 
-  const handleDeleteUser = (userId) => {
-    showModal({
-      type: 'warning',
-      title: 'Delete User',
-      message: 'Are you sure you want to delete this user? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      onConfirm: () => {
-        setUsers(users.filter(u => u.id !== userId));
-        showNotification('User deleted successfully', 'success');
-      },
-      showCancel: true
-    });
-  };
-
-  const handleToggleUserStatus = (userId) => {
-    setUsers(users.map(u => 
-      u.id === userId 
-        ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } 
-        : u
-    ));
-    showNotification('User status updated', 'info');
-  };
-
   const handleDeletePrediction = (predictionId) => {
     showModal({
       type: 'warning',
@@ -137,6 +161,43 @@ function Admin({ showNotification, showModal }) {
     });
   };
 
+  /*const handleCancelSubscription = async (subscriptionId) => {
+    // 1. Find the target user using your array bracket logic (or .find)
+    const targetSubscription = subscriptions.find(s => s.id === subscriptionId);
+    if (!targetSubscription) {
+      showNotification('Subscription not found', 'error');
+      return;
+    }
+
+    showModal({
+      type: 'warning',
+      title: 'Cancel Subscription',
+      message: 'Are you sure you want to cancel this subscription?',
+      confirmText: 'Cancel Subscription',
+      cancelText: 'No',
+      onConfirm: async () => {
+        try {
+          const data = await cancelSubscription(subscriptionId);
+
+
+          setSubscriptions(prevSubs =>
+            prevSubs.map(s =>
+              s.id === subscriptionId
+                ? { ...s, status: "cancelled" }
+                : s
+            )
+          );
+
+          showNotification('Subscription cancelled', 'info');
+        } catch (error) {
+          showNotification('Failed to cancel subcription', 'error');
+        }
+
+      },
+      showCancel: true
+    });
+  };*/
+
   const handleCancelSubscription = (subscriptionId) => {
     showModal({
       type: 'warning',
@@ -144,21 +205,60 @@ function Admin({ showNotification, showModal }) {
       message: 'Are you sure you want to cancel this subscription?',
       confirmText: 'Cancel Subscription',
       cancelText: 'No',
-      onConfirm: () => {
-        setSubscriptions(subscriptions.map(s => 
-          s.id === subscriptionId ? { ...s, status: 'cancelled' } : s
-        ));
-        showNotification('Subscription cancelled', 'info');
+      onConfirm: async () => {
+        const result = await cancelSubscription(subscriptionId);
+        if (result.success) {
+          showNotification('Subscription cancelled', 'info');
+        } else {
+          showNotification(result.error || 'Failed to cancel subscription', 'error');
+        }
       },
       showCancel: true
     });
   };
 
-  if (!user) {
-    return null; // Will be redirected by useEffect
+  const handleToggleSubscription = (subscriptionId, status, plan) => {
+    showModal({
+      type: 'warning',
+      title: `${status === 'inactive' ? 'Deactivate' : 'Activate'} Subscription`,
+      message: 'Are you sure you want to cancel this subscription?',
+      confirmText: `${status === 'inactive' ? 'Deactivate' : 'Activate'} Subscription`,
+      cancelText: 'No',
+      onConfirm: async () => {
+        const result = await toggleSubscription(subscriptionId, status, plan);
+        if (result.success) {
+          showNotification('Subscription cancelled', 'info');
+        } else {
+          showNotification(result.error || 'Failed to cancel subscription', 'error');
+        }
+      },
+      showCancel: true
+    });
   }
 
-  if (loading) {
+  // Format ISO → "Today • 15:00 GMT"
+  const formatTime = (isoString) => {
+    if (!isoString) return "";
+    try {
+      const d = new Date(isoString);
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const time = d.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+      });
+      return `${isToday ? "Today" : d.toLocaleDateString("en-GB")} • ${time} GMT`;
+    } catch {
+      return isoString;
+    }
+  };
+
+  /*if (!user) {
+    return null; // Will be redirected by useEffect
+  }*/
+
+  if (loading && users.length === 0 && subscriptions.length === 0) {
     return (
       <div className="admin-container">
         <div className="loading-spinner">
@@ -190,48 +290,23 @@ function Admin({ showNotification, showModal }) {
       {/* Horizontal Scrollable Tabs */}
       <div className="admin-tabs-wrapper">
         <div className="admin-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            <i className="fas fa-chart-pie"></i>
-            <span>Dashboard</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
-          >
-            <i className="fas fa-users"></i>
-            <span>Users</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'predictions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('predictions')}
-          >
-            <i className="fas fa-futbol"></i>
-            <span>Predictions</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'subscriptions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('subscriptions')}
-          >
-            <i className="fas fa-crown"></i>
-            <span>Subscriptions</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            <i className="fas fa-chart-line"></i>
-            <span>Analytics</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            <i className="fas fa-cog"></i>
-            <span>Settings</span>
-          </button>
+          {[
+            { name: "dashboard", icon: "fa-chart-pie" },
+            { name: "users", icon: "fa-users" },
+            { name: "subscriptions", icon: "fa-crown" },
+            //{name: "predictions", icon: "fa-futbol"},
+          ].map((tab) => (
+            <button
+              key={tab.name}
+              className={`tab-btn ${activeTab === tab.name ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.name)}
+            >
+              <i className={`fas ${tab.icon}`}></i>
+              <span>{tab.name.charAt(0).toUpperCase() + tab.name.slice(1)}</span>
+            </button>
+          ))}
+
+          {/*
           <button 
             className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
             onClick={() => setActiveTab('reports')}
@@ -245,7 +320,7 @@ function Admin({ showNotification, showModal }) {
           >
             <i className="fas fa-headset"></i>
             <span>Support</span>
-          </button>
+          </button>*/}
         </div>
       </div>
 
@@ -257,28 +332,28 @@ function Admin({ showNotification, showModal }) {
               <div className="stat-card">
                 <i className="fas fa-users"></i>
                 <div className="stat-info">
-                  <h3>{stats.totalUsers}</h3>
+                  <h3>{users.length}</h3>
                   <p>Total Users</p>
                 </div>
               </div>
               <div className="stat-card">
                 <i className="fas fa-crown"></i>
                 <div className="stat-info">
-                  <h3>{stats.activeSubscriptions}</h3>
+                  <h3>{subscriptions.filter(sub => sub.status === "active").length}</h3>
                   <p>Active Subscriptions</p>
                 </div>
               </div>
-              <div className="stat-card">
+              {/*<div className="stat-card">
                 <i className="fas fa-futbol"></i>
                 <div className="stat-info">
                   <h3>{stats.totalPredictions}</h3>
                   <p>Total Predictions</p>
                 </div>
-              </div>
+              </div>*/}
               <div className="stat-card">
                 <i className="fas fa-money-bill-wave"></i>
                 <div className="stat-info">
-                  <h3>KSh {stats.totalRevenue.toLocaleString()}</h3>
+                  <h3>KSh {subscriptions.reduce((sum, item) => sum + parseFloat(item.price), 0).toLocaleString()}</h3>
                   <p>Total Revenue</p>
                 </div>
               </div>
@@ -343,20 +418,20 @@ function Admin({ showNotification, showModal }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
-                    <tr key={user.id}>
-                      <td>#{user.id}</td>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
+                  {users && users.map((u, index) => (
+                    <tr key={u.id}>
+                      <td>#{index + 1}</td>
+                      <td>{u.name}</td>
+                      <td>{u.email}</td>
                       <td>
-                        <span className={`badge ${user.membership}`}>
-                          {user.membership}
+                        <span className={`badge ${u.membership}`}>
+                          {u.membership}
                         </span>
                       </td>
-                      <td>{user.joinDate}</td>
+                      <td>{formatTime(u.joinDate)}</td>
                       <td>
-                        <span className={`status-badge ${user.status}`}>
-                          {user.status}
+                        <span className={`status-badge ${u.isActive ? 'active' : 'inactive'}`}>
+                          {u.isActive ? 'active' : 'inactive'}
                         </span>
                       </td>
                       <td>
@@ -364,17 +439,17 @@ function Admin({ showNotification, showModal }) {
                           <button className="btn-icon" title="Edit">
                             <i className="fas fa-edit"></i>
                           </button>
-                          <button 
-                            className="btn-icon" 
-                            title={user.status === 'active' ? 'Deactivate' : 'Activate'}
-                            onClick={() => handleToggleUserStatus(user.id)}
+                          <button
+                            className="btn-icon"
+                            title={u.status === 'active' ? 'Deactivate' : 'Activate'}
+                            onClick={() => handleToggleUserStatus(u.id)}
                           >
-                            <i className={`fas ${user.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i>
+                            <i className={`fas ${u.status === 'active' ? 'fa-ban' : 'fa-check'}`}></i>
                           </button>
-                          <button 
-                            className="btn-icon delete" 
+                          <button
+                            className="btn-icon delete"
                             title="Delete"
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(u.id)}
                           >
                             <i className="fas fa-trash"></i>
                           </button>
@@ -384,6 +459,83 @@ function Admin({ showNotification, showModal }) {
                   ))}
                 </tbody>
               </table>
+              {!loading && hasMoreUsers && (
+                <button onClick={() => fetchUsers(false)}>Load More Users</button>
+              )}
+              {!hasMoreUsers && users.length > 0 && <p>No more users.</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Subscriptions Tab */}
+        {activeTab === 'subscriptions' && (
+          <div className="subscriptions-tab">
+            <h2>Subscription Management</h2>
+            <div className="table-responsive">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscriptions && subscriptions.map((sub, index) => (
+                    <tr key={sub.id}>
+                      <td>#{index + 1}</td>
+                      <td>{users.find(user => user.id === sub.userId)?.name || 'Unknown User'}</td>
+                      <td>
+                        <span className={`badge ${sub.plan}`}>
+                          {sub.plan}
+                        </span>
+                      </td>
+                      <td>KSh {sub.price}</td>
+                      <td>{formatTime(sub.startDate)}</td>
+                      <td>{formatTime(sub.endDate)}</td>
+                      <td>
+                        <span className={`status-badge ${sub.status}`}>
+                          {sub.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="action-buttons">
+                          <button className="btn-icon" title="View">
+                            <i className="fas fa-eye"></i>
+                          </button>
+                          {sub.status !== 'cancelled' && (
+                            <button
+                              className="btn-icon warning"
+                              title="Cancel"
+                              onClick={() => handleCancelSubscription(sub.id)}
+                            >
+                              <i className="fas fa-ban"></i>
+                            </button>
+                          )},
+                          {/*sub.status === 'active' && */(
+                            <button
+                              className="btn-icon warning"
+                              title={sub.status === 'inactive' ? 'Activate' : 'Deactivate'}
+                              onClick={() => handleToggleSubscription(sub.id, sub.status === 'inactive' ? 'active' : 'inactive', sub.plan)}
+                            >
+                              <i className={`fas ${sub.status === 'inactive' ? 'fa-toggle-off' : 'fa-toggle-on'}`}></i>
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {!loading && hasMoreSubscriptions && (
+                <button onClick={() => fetchSubscriptions(false)}>Load More Subscriptions</button>
+              )}
+              {!hasMoreSubscriptions && subscriptions.length > 0 && <p>No more subscriptions.</p>}
             </div>
           </div>
         )}
@@ -433,8 +585,8 @@ function Admin({ showNotification, showModal }) {
                           <button className="btn-icon" title="View">
                             <i className="fas fa-eye"></i>
                           </button>
-                          <button 
-                            className="btn-icon delete" 
+                          <button
+                            className="btn-icon delete"
                             title="Delete"
                             onClick={() => handleDeletePrediction(pred.id)}
                           >
@@ -447,75 +599,6 @@ function Admin({ showNotification, showModal }) {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
-
-        {/* Subscriptions Tab */}
-        {activeTab === 'subscriptions' && (
-          <div className="subscriptions-tab">
-            <h2>Subscription Management</h2>
-            <div className="table-responsive">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Plan</th>
-                    <th>Amount</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {subscriptions.map(sub => (
-                    <tr key={sub.id}>
-                      <td>#{sub.id}</td>
-                      <td>{sub.user}</td>
-                      <td>
-                        <span className={`badge ${sub.plan}`}>
-                          {sub.plan}
-                        </span>
-                      </td>
-                      <td>KSh {sub.amount}</td>
-                      <td>{sub.startDate}</td>
-                      <td>{sub.endDate}</td>
-                      <td>
-                        <span className={`status-badge ${sub.status}`}>
-                          {sub.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-icon" title="View">
-                            <i className="fas fa-eye"></i>
-                          </button>
-                          {sub.status === 'active' && (
-                            <button 
-                              className="btn-icon warning" 
-                              title="Cancel"
-                              onClick={() => handleCancelSubscription(sub.id)}
-                            >
-                              <i className="fas fa-ban"></i>
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Placeholder for other tabs */}
-        {(activeTab === 'analytics' || activeTab === 'settings' || activeTab === 'reports' || activeTab === 'support') && (
-          <div className="placeholder-tab">
-            <i className="fas fa-tools"></i>
-            <h3>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Section</h3>
-            <p>This section is under construction</p>
           </div>
         )}
       </div>

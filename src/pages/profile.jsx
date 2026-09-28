@@ -330,13 +330,13 @@ function Profile({ showNotification, showModal }) {
         >
           Profile Settings
         </button>
-        {/*<button 
+        <button
           className={`tab-btn ${activeTab === 'subscription' ? 'active' : ''}`}
           onClick={() => setActiveTab('subscription')}
         >
           Subscription
         </button>
-        <button 
+        {/*<button 
           className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
         >

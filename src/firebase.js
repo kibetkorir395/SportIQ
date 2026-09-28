@@ -216,17 +216,17 @@ export const updateUserProfile = async (updates) => {
   try {
     const user = auth.currentUser;
 
-    let userId //= user.id
+    if (!user) {
+      return { success: false, error: "No user logged in" };
+    }
+
+    let userId = user.uid
 
     if (updates.isAdmin && updates.id) {
       userId = updates.id
       const { isAdmin, id, ...rest } = updates;
       updates = rest;
     }
-
-    /*if (!user) {
-      return { success: false, error: "No user logged in" };
-    }*/
 
     // Update auth profile
     if (updates.displayName || updates.photoURL) {
@@ -239,7 +239,9 @@ export const updateUserProfile = async (updates) => {
     // Update Firestore user document
     await updateDoc(doc(db, "users", userId), updates);
 
-    return { success: true };
+    // Fetch the updated document from Firestore to get the full profile
+    const updatedDocSnap = await getDoc(doc(db, "users", userId));
+    return { success: true, user: updatedDocSnap.data() };
   } catch (error) {
     return { success: false, error: error.message };
   }

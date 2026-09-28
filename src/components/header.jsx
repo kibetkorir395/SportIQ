@@ -6,7 +6,7 @@ import './header.css';
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useFirebase();
+  const { user, userProfile } = useFirebase();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -59,6 +59,8 @@ export default function Header() {
     }
     return user?.email?.charAt(0).toUpperCase() || 'U';
   };
+
+  const isAdmin = user?.email === 'admin@sportiq.com' || userProfile?.role === 'admin';
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -116,15 +118,6 @@ export default function Header() {
             </NavLink>
 
             <NavLink
-              to="/admin"
-              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              onClick={handleNavClick}
-            >
-              <i className="fas fa-chart-line"></i>
-              <span>Admin</span>
-            </NavLink>
-
-            <NavLink
               to="/premium"
               className={({ isActive }) => `nav-link premium-btn ${isActive ? 'active' : ''}`}
               onClick={handleNavClick}
@@ -134,16 +127,24 @@ export default function Header() {
             </NavLink>
 
             {user && (
-              <>
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                  onClick={handleNavClick}
-                >
-                  <i className="fas fa-user"></i>
-                  <span>Profile</span>
-                </NavLink>
-              </>
+              isAdmin ? <NavLink
+                to="/admin"
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                onClick={handleNavClick}
+              >
+                <i className="fas fa-user-cog"></i>
+                <span>Admin</span>
+              </NavLink> :
+                <>
+                  <NavLink
+                    to="/profile"
+                    className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                    onClick={handleNavClick}
+                  >
+                    <i className="fas fa-user"></i>
+                    <span>Profile</span>
+                  </NavLink>
+                </>
             )}
 
             {/* Mobile Auth Buttons */}

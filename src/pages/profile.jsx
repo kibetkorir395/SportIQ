@@ -9,6 +9,7 @@ function Profile({ showNotification, showModal }) {
   const navigate = useNavigate();
   const {
     user,
+    setUser,
     userProfile,
     updateUserProfile,
     updateUserEmail,
@@ -136,6 +137,7 @@ function Profile({ showNotification, showModal }) {
       const result = await updateUserProfile(profileForm);
 
       if (result.success) {
+        setUser(result.user);
         showNotification('✅ Profile updated successfully!', 'success');
       } else {
         showNotification(result.error, 'error');

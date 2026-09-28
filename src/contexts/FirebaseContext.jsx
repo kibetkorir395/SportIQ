@@ -38,7 +38,7 @@ export const FirebaseProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (user) => {
       setUser(user);
-      
+
       if (user) {
         // Fetch user profile
         const profileResult = await getUserProfile(user.uid);
@@ -55,7 +55,7 @@ export const FirebaseProvider = ({ children }) => {
         setUserProfile(null);
         setSubscriptions([]);
       }
-      
+
       setLoading(false);
     });
 
@@ -67,6 +67,7 @@ export const FirebaseProvider = ({ children }) => {
     userProfile,
     subscriptions,
     loading,
+    setUser,
     // Auth methods
     signUpWithEmail,
     signInWithEmail,

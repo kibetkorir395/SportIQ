@@ -6,6 +6,7 @@ import {
     toggleSubscription as toggleSubscriptionAPI,
     updateUserProfile,
 } from '../firebase';
+import { useMatchPredictions } from "../hooks/useMatchPredictions";
 
 const USERS_PAGE_SIZE = 20;
 const SUBSCRIPTIONS_PAGE_SIZE = 20;
@@ -14,6 +15,12 @@ export const useAdmin = () => {
     // --- Shared State ---
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const today = new Date().toISOString().slice(0, 10); // "2026-09-25"
+    const { predictions, /*loading, error,*/ fetchByDate, fetchPosts } = useMatchPredictions({
+        autoFetch: true,
+        date: today,
+    });
 
     // Use a ref to prevent concurrent fetches without triggering re-renders
     const isFetching = useRef(false);
@@ -104,7 +111,7 @@ export const useAdmin = () => {
             // Optimistically update local state
             setUsers((prev) =>
                 prev.map((u) =>
-                    u.id === userId ? { ...u, isActive: updatedStatus } : u
+                    u.id === userId ? result.user/*{ ...u, isActive: updatedStatus }*/ : u
                 )
             );
 
@@ -286,6 +293,10 @@ export const useAdmin = () => {
         cancelSubscription,
         toggleSubscription,
         removeSubscriptionFromList,
+
+        predictions,
+        fetchByDate,
+        fetchPosts,
 
         // Helpers
         resetAdminState,

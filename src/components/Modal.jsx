@@ -10,6 +10,7 @@ const Modal = ({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   onConfirm,
+  onCancel,
   showCancel = true,
   size = 'medium'
 }) => {
@@ -65,23 +66,29 @@ const Modal = ({
     <div className={`modal-overlay ${size}`} onClick={handleOverlayClick}>
       <div className="modal-content">
         <button className="modal-close" onClick={onClose}>×</button>
-        
+
         <div className={`modal-icon ${type}`}>
           {getIcon()}
         </div>
-        
+
         <h2 className="modal-title">{getTitle()}</h2>
-        
+
         <p className="modal-message">{message}</p>
-        
+
         <div className="modal-actions">
           {showCancel && (
-            <button className="modal-btn cancel" onClick={onClose}>
+            <button
+              className="modal-btn cancel"
+              onClick={() => {
+                if (onCancel) onCancel();
+                onClose();
+              }}
+            >
               {cancelText}
             </button>
           )}
-          <button 
-            className={`modal-btn confirm ${type}`} 
+          <button
+            className={`modal-btn confirm ${type}`}
             onClick={() => {
               if (onConfirm) onConfirm();
               onClose();
@@ -105,6 +112,7 @@ export const useModal = () => {
     confirmText: 'Confirm',
     cancelText: 'Cancel',
     onConfirm: null,
+    onCancel: null,
     showCancel: true,
     size: 'medium'
   });
@@ -130,13 +138,14 @@ export const useModal = () => {
     showError: (message, options = {}) => showModal({ type: 'error', message, ...options }),
     showWarning: (message, options = {}) => showModal({ type: 'warning', message, ...options }),
     showInfo: (message, options = {}) => showModal({ type: 'info', message, ...options }),
-    showConfirm: (message, onConfirm, options = {}) => showModal({ 
-      type: 'warning', 
-      message, 
+    showConfirm: (message, onConfirm, options = {}) => showModal({
+      type: 'warning',
+      message,
       onConfirm,
+      onCancel,
       confirmText: 'Yes',
       cancelText: 'No',
-      ...options 
+      ...options
     }),
   };
 };

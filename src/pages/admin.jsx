@@ -9,7 +9,7 @@ import { deleteUserAccount } from "../firebase"; // for real delete
 
 function Admin({ showNotification, showModal }) {
   const navigate = useNavigate();
-  const { user } = useFirebase();
+  const { user, userProfile } = useFirebase();
   const [runTour, setRunTour] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
@@ -18,6 +18,38 @@ function Admin({ showNotification, showModal }) {
     recentUsers: [],
     recentPredictions: []
   });
+
+
+  // Check if user is admin
+  useEffect(() => {
+    // In real app, check if user has admin role
+    const isAdmin = user?.email === 'admin@sportiq.com' || userProfile?.role === 'admin';
+
+    if (!user) {
+      showModal({
+        type: 'warning',
+        title: 'Access Denied',
+        message: 'Please login to access admin panel',
+        confirmText: 'Login',
+        onConfirm: () => navigate('/get-started'),
+        onCancel: () => navigate('/')
+      });
+    } else if (!isAdmin) {
+      showModal({
+        type: 'error',
+        title: 'Unauthorized',
+        message: 'You do not have permission to access the admin panel',
+        confirmText: 'Go Home',
+        onConfirm: () => navigate('/'),
+        onCancel: () => window.history.back()
+      });
+    }
+
+    // Simulate loading data
+    /*setTimeout(() => {
+      setLoading(false);
+    }, 1000);*/
+  }, [/*user, userProfile, navigate, showModal*/]);
 
   const {
     // Shared
@@ -29,12 +61,17 @@ function Admin({ showNotification, showModal }) {
     fetchUsers,
     toggleUserStatus,
     removeUserFromList,
+
     // Subscriptions
     subscriptions,
     hasMoreSubscriptions,
     fetchSubscriptions,
     cancelSubscription,
-    toggleSubscription
+    toggleSubscription,
+
+    predictions,
+    fetchByDate,
+    fetchPosts,
   } = useAdmin();
 
   // Initial load on mount
@@ -43,8 +80,24 @@ function Admin({ showNotification, showModal }) {
     fetchSubscriptions(true);
   }, [fetchUsers, fetchSubscriptions]);
 
-  // --- Handlers ---
 
+  // 1. Generate the exact filtered array used in your UI
+  const filteredMatches = predictions ? predictions.flatMap((p) => {
+
+    if (!p.matches) return [];
+    return p.matches.filter((match) => {
+      if (!match.predictions) return false;
+      return match//Object.values(match.predictions).some((pred) => pred && pred.value > 50);
+    }).map((match) => ({
+      ...match,
+      // Inject the parent league info directly into the match object
+      leagueName: p.name,
+      leagueCountry: p.country,
+      leagueSlug: p.slug // Holds the {country, slug} object
+    }));
+  }) : [];
+
+  // --- Handlers ---
   const handleToggleUserStatus = async (userId) => {
     const result = await toggleUserStatus(userId);
     if (result.success) {
@@ -87,64 +140,6 @@ function Admin({ showNotification, showModal }) {
     });
   };*/
 
-  const [predictions, setPredictions] = useState([
-    { id: 1, match: "Manchester City vs Liverpool", league: "Premier League", date: "2024-02-23", status: "active", views: 234, accuracy: "85%" },
-    { id: 2, match: "Real Madrid vs Barcelona", league: "La Liga", date: "2024-02-22", status: "active", views: 567, accuracy: "78%" },
-    { id: 3, match: "Bayern vs Dortmund", league: "Bundesliga", date: "2024-02-21", status: "archived", views: 189, accuracy: "92%" },
-    { id: 4, match: "Inter vs AC Milan", league: "Serie A", date: "2024-02-20", status: "active", views: 145, accuracy: "71%" },
-    { id: 5, match: "PSG vs Marseille", league: "Ligue 1", date: "2024-02-19", status: "active", views: 98, accuracy: "88%" },
-    { id: 6, match: "Ajax vs Feyenoord", league: "Eredivisie", date: "2024-02-18", status: "archived", views: 76, accuracy: "83%" },
-  ]);
-
-  // Check if user is admin
-  /*useEffect(() => {
-    // In real app, check if user has admin role
-    const isAdmin = user?.email === 'admin@sportiq.com' || userProfile?.role === 'admin';
-
-    if (!user) {
-      showModal({
-        type: 'warning',
-        title: 'Access Denied',
-        message: 'Please login to access admin panel',
-        confirmText: 'Login',
-        onConfirm: () => navigate('/get-started')
-      });
-    } else if (!isAdmin) {
-      showModal({
-        type: 'error',
-        title: 'Unauthorized',
-        message: 'You do not have permission to access the admin panel',
-        confirmText: 'Go Home',
-        onConfirm: () => navigate('/')
-      });
-    }
-
-    // Simulate loading data
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, [user, userProfile, navigate, showModal]);*/
-
-  const steps = [
-    {
-      target: '.admin-tabs',
-      content: 'Navigate between different admin sections',
-      title: 'Admin Navigation',
-      placement: 'bottom',
-    },
-    {
-      target: '.stats-grid',
-      content: 'View key metrics and performance indicators',
-      title: 'Dashboard Stats',
-      placement: 'top',
-    },
-    {
-      target: '.recent-activity',
-      content: 'Monitor recent user activity and system events',
-      title: 'Recent Activity',
-      placement: 'top',
-    }
-  ];
 
   const handleDeletePrediction = (predictionId) => {
     showModal({
@@ -161,42 +156,6 @@ function Admin({ showNotification, showModal }) {
     });
   };
 
-  /*const handleCancelSubscription = async (subscriptionId) => {
-    // 1. Find the target user using your array bracket logic (or .find)
-    const targetSubscription = subscriptions.find(s => s.id === subscriptionId);
-    if (!targetSubscription) {
-      showNotification('Subscription not found', 'error');
-      return;
-    }
-
-    showModal({
-      type: 'warning',
-      title: 'Cancel Subscription',
-      message: 'Are you sure you want to cancel this subscription?',
-      confirmText: 'Cancel Subscription',
-      cancelText: 'No',
-      onConfirm: async () => {
-        try {
-          const data = await cancelSubscription(subscriptionId);
-
-
-          setSubscriptions(prevSubs =>
-            prevSubs.map(s =>
-              s.id === subscriptionId
-                ? { ...s, status: "cancelled" }
-                : s
-            )
-          );
-
-          showNotification('Subscription cancelled', 'info');
-        } catch (error) {
-          showNotification('Failed to cancel subcription', 'error');
-        }
-
-      },
-      showCancel: true
-    });
-  };*/
 
   const handleCancelSubscription = (subscriptionId) => {
     showModal({
@@ -236,27 +195,49 @@ function Admin({ showNotification, showModal }) {
     });
   }
 
-  // Format ISO → "Today • 15:00 GMT"
   const formatTime = (isoString) => {
     if (!isoString) return "";
     try {
-      const d = new Date(isoString);
-      const today = new Date();
-      const isToday = d.toDateString() === today.toDateString();
-      const time = d.toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "UTC",
+      const date = new Date(isoString);
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
       });
-      return `${isToday ? "Today" : d.toLocaleDateString("en-GB")} • ${time} GMT`;
-    } catch {
-      return isoString;
+    } catch (error) {
+      return isoString; // Fallback if string is corrupt
     }
   };
 
-  /*if (!user) {
+
+
+  const steps = [
+    {
+      target: '.admin-tabs',
+      content: 'Navigate between different admin sections',
+      title: 'Admin Navigation',
+      placement: 'bottom',
+    },
+    {
+      target: '.stats-grid',
+      content: 'View key metrics and performance indicators',
+      title: 'Dashboard Stats',
+      placement: 'top',
+    },
+    {
+      target: '.recent-activity',
+      content: 'Monitor recent user activity and system events',
+      title: 'Recent Activity',
+      placement: 'top',
+    }
+  ];
+
+
+  if (!user) {
     return null; // Will be redirected by useEffect
-  }*/
+  }
 
   if (loading && users.length === 0 && subscriptions.length === 0) {
     return (
@@ -294,7 +275,7 @@ function Admin({ showNotification, showModal }) {
             { name: "dashboard", icon: "fa-chart-pie" },
             { name: "users", icon: "fa-users" },
             { name: "subscriptions", icon: "fa-crown" },
-            //{name: "predictions", icon: "fa-futbol"},
+            { name: "predictions", icon: "fa-futbol" },
           ].map((tab) => (
             <button
               key={tab.name}
@@ -305,22 +286,6 @@ function Admin({ showNotification, showModal }) {
               <span>{tab.name.charAt(0).toUpperCase() + tab.name.slice(1)}</span>
             </button>
           ))}
-
-          {/*
-          <button 
-            className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-            onClick={() => setActiveTab('reports')}
-          >
-            <i className="fas fa-file-alt"></i>
-            <span>Reports</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'support' ? 'active' : ''}`}
-            onClick={() => setActiveTab('support')}
-          >
-            <i className="fas fa-headset"></i>
-            <span>Support</span>
-          </button>*/}
         </div>
       </div>
 
@@ -560,24 +525,25 @@ function Admin({ showNotification, showModal }) {
                     <th>Status</th>
                     <th>Views</th>
                     <th>Accuracy</th>
-                    <th>Actions</th>
+                    {/*<th>Actions</th>*/}
                   </tr>
                 </thead>
                 <tbody>
-                  {predictions.map(pred => (
+                  {filteredMatches.map((pred, index) => (
+
                     <tr key={pred.id}>
-                      <td>#{pred.id}</td>
-                      <td>{pred.match}</td>
-                      <td>{pred.league}</td>
-                      <td>{pred.date}</td>
+                      <td>#{index + 1}</td>
+                      <td><>{pred.home}</> <br />vs<br /><>{pred.away}</></td>
+                      <td>{pred.leagueName}</td>
+                      <td>{formatTime(pred.start_time)}</td>
                       <td>
-                        <span className={`status-badge ${pred.status}`}>
-                          {pred.status}
+                        <span className={`status-badge ${pred.status.status_text === "Prematch" ? 'active' : 'inactive'}`}>
+                          {pred.status.status_text}
                         </span>
                       </td>
-                      <td>{pred.views}</td>
-                      <td>{pred.accuracy}</td>
-                      <td>
+                      <td>{Object.entries(pred.predictions).map(([key, details], idx) => (<>{details.label}<br /></>))}</td>
+                      <td>{Object.entries(pred.predictions).map(([key, details], idx) => (<>{details.value}%<br /></>))}</td>
+                      {/*<td>
                         <div className="action-buttons">
                           <button className="btn-icon" title="Edit">
                             <i className="fas fa-edit"></i>
@@ -593,7 +559,7 @@ function Admin({ showNotification, showModal }) {
                             <i className="fas fa-trash"></i>
                           </button>
                         </div>
-                      </td>
+                      </td>*/}
                     </tr>
                   ))}
                 </tbody>
